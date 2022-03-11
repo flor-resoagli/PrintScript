@@ -45,6 +45,10 @@ dependencies {
 
 }
 
+tasks.test {
+    useJUnitPlatform()
+}
+
 application {
     // Define the main class for the application.
     mainClass.set("PrintScript.App")
