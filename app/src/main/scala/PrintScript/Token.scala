@@ -2,7 +2,7 @@ package PrintScript
 
 import org.austral.ingsis.printscript.common.TokenType
 
-case class Token(val tokenType: TokenType, val from: Int, val to: Int)
+case class Token(tokenType: TokenType, from: Int, to: Int, value: String)
 
 sealed trait TokenType  { def toString (): String }
 
@@ -10,7 +10,7 @@ sealed trait TokenType  { def toString (): String }
 case class DECLARATION() extends TokenType { override def toString() : String = "DECLARATION" }
 
 //IDENTIFIER: variable name - [a-zA-Z][a-zA-Z0-9]*
-case class IDENTIFIER(val name: String) extends TokenType { override def toString() : String = "IDENTIFIER" }
+case class IDENTIFIER() extends TokenType { override def toString() : String = "IDENTIFIER" }
 
 //COLON: ':'
 case class COLON() extends TokenType { override def toString() : String = "COLON" }
@@ -28,10 +28,10 @@ case class NUMBERTYPE() extends TokenType { override def toString() : String = "
 case class STRINGTYPE() extends TokenType { override def toString() : String = "STRINGTYPE" }
 
 //LITERALSTRING: '["-']' + [a-zA-Z0-9]* + '["-']'
-case class LITERALSTRING(val value: String) extends TokenType { override def toString() : String = "LITERALSTRING" }
+case class LITERALSTRING() extends TokenType { override def toString() : String = "LITERALSTRING" }
 
 //LITERALNUMBER: '['0-9]*'
-case class LITERALNUMBER(val value: String) extends TokenType { override def toString() : String = "LITERALNUMBER" }
+case class LITERALNUMBER() extends TokenType { override def toString() : String = "LITERALNUMBER" }
 
 //SUM: '+'
 case class SUM() extends TokenType { override def toString() : String = "SUM" }
@@ -55,4 +55,4 @@ case class LEFTPARENTHESIS() extends TokenType { override def toString() : Strin
 case class RIGHTPARENTHESIS() extends TokenType { override def toString() : String = "RIGHTPARENTHESIS" }
 
 //WHITESPACE: '\s'
-case class WHITESPACE() extends TokenType { override def toString() : String = "WHITESPACE" }
+//case class WHITESPACE() extends TokenType { override def toString() : String = "WHITESPACE" }
