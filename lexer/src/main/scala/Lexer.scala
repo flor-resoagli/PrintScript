@@ -1,5 +1,3 @@
-package PrintScript
-
 import scala.collection.mutable.ListBuffer
 
 class Lexer {

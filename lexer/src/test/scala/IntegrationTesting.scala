@@ -1,5 +1,4 @@
-package PrintScript
-import org.junit.Test
+
 
 
 class IntegrationTesting {

@@ -1,8 +1,5 @@
-package PrintScript
-
-import org.austral.ingsis.printscript.common.TokenType
-
 case class Token(tokenType: TokenType, from: Int, to: Int, value: String)
+
 
 sealed trait TokenType  { def toString (): String }
 
@@ -53,6 +50,3 @@ case class LEFTPARENTHESIS() extends TokenType { override def toString() : Strin
 
 //RIGHTPARENTHESIS: ')'
 case class RIGHTPARENTHESIS() extends TokenType { override def toString() : String = "RIGHTPARENTHESIS" }
-
-//WHITESPACE: '\s'
-//case class WHITESPACE() extends TokenType { override def toString() : String = "WHITESPACE" }
