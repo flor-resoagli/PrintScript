@@ -1,66 +1,56 @@
 import scala.collection.mutable.ListBuffer
 
-class Lexer {
+class Lexer(tokenConditions: List[TokenCondition]) {
 
-  def tokenize(input: String): ListBuffer[Token] = {
+  private var lexStates = List[LexicalState]()
+
+  private case class LexicalState(column: Int, line: Int)
+
+  def tokenize(input: String): List[Token] = {
+    lexStates = lexicalStateDeclaration(input)
+    buildTokens(input)
+  }
+
+  private def lexicalStateDeclaration(input: String): List[LexicalState] =
+    var line = 0
+    var column = -1
+    input.map(c => {
+      if (isNewLine(c)) {
+        line += 1
+        column = 0
+      } else {
+        column += 1
+      }
+      LexicalState(column, line)
+    }).toList
+
+  private def isNewLine(c: Char) = c == '\n'
+
+  private def buildTokens(input: String): List[Token] = {
+    var position = 0
     var tokens = ListBuffer[Token]()
-    var i = 0
-    var word = ""
-    var isString = false
-    input.foreach {
-      case c@( ' ' | '(' | ')' | '/' | '*' | '-' | '+' | '=' | ':' | ';' ) => {
-        if(isString) word += c
-        if (word != "" && !isString) {
-          tokens.append(Token(matchword(word), i - word.length, i-1, word))
-          word = ""
+
+    while(position < input.length) {
+      var found = false
+      if(input(position) == ' ' || input(position) == '\n') {
+        position += 1
+      }
+      for (tokenCondition <- tokenConditions) {
+        if(!found && input(position) != ' ') {
+          tokenCondition.apply(position, input) match {
+            case Some((finalPosition, tokenType)) => {
+              tokens.append(Token(tokenType, AbsoluteRange(position, finalPosition), lexicalRange(position, finalPosition), input.substring(position, finalPosition+1)))
+              position = finalPosition+1
+              found = true
+            }
+            case None => {}
+          }
         }
-        if(c != ' ') tokens.append(Token(matchchar(c), i, i, c.toString))
       }
-      case c@('\'' | '\"') => {
-        isString = !isString
-        word += c
-      }
-      case c@_ => {
-        word += c
-      }
-        i += 1
     }
-    tokens
+    tokens.toList
   }
 
-  def matchchar(char: Char) : TokenType = {
-    char match {
-//        case ' ' => WHITESPACE.apply()
-        case ':' => COLON.apply()
-        case ';' => SEMICOLON.apply()
-        case '=' => EQUAL.apply()
-        case '+' => SUM.apply()
-        case '-' => SUB.apply()
-        case '*' => MUL.apply()
-        case '/' => DIV.apply()
-        case '(' => LEFTPARENTHESIS.apply()
-        case ')' => RIGHTPARENTHESIS.apply()
-        case _ => throw new Exception("Unknown character: " + char)
-    }
-  }
+  private def lexicalRange(from: Int, to: Int): LexicalRange = LexicalRange(lexStates(from).column, lexStates(to).column, lexStates(from).line, lexStates(to).line)
 
-  def matchword(word: String): TokenType = {
-    word match {
-      case "let" => DECLARATION.apply()
-      case "number" => NUMBERTYPE.apply()
-      case "string" => STRINGTYPE.apply()
-      case "println" => PRINTLN.apply()
-      case w if w.matches("[a-zA-Z_][a-zA-Z0-9_]*") => IDENTIFIER.apply()
-      case w if w.matches("[0-9.]+") => LITERALNUMBER.apply()
-      case w if w.matches("[\"-\'][^_]*[\"-\']") => LITERALSTRING.apply()
-    }
-  }
-}//a-zA-Z0-9 .,
-
-object LexerApp extends App {
-  val lexer = new Lexer
-  val input = "let variable1: number = 5.25; let secondVariable = \"hello world! (This is a test string/set of chars)\"; let z = x + y; println(z);"
-  val tokens = lexer.tokenize(input)
-  tokens.foreach(println)
-  println(input)
 }

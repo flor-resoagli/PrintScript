@@ -1,5 +1,9 @@
-case class Token(tokenType: TokenType, from: Int, to: Int, value: String)
 
+
+case class Token(tokenType: TokenType, absoluteRange: AbsoluteRange, lexicalRange: LexicalRange, value: String)
+
+case class AbsoluteRange(from: Int, to: Int)
+case class LexicalRange(fromCol: Int, toCol: Int, fromLine: Int, toLine: Int)
 
 sealed trait TokenType  { def toString (): String }
 
@@ -50,3 +54,6 @@ case class LEFTPARENTHESIS() extends TokenType { override def toString() : Strin
 
 //RIGHTPARENTHESIS: ')'
 case class RIGHTPARENTHESIS() extends TokenType { override def toString() : String = "RIGHTPARENTHESIS" }
+
+//WHITESPACE: '\s'
+//case class WHITESPACE() extends TokenType { override def toString() : String = "WHITESPACE" }
