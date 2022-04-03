@@ -1,6 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Gradle Imported" enabled="true">
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.scoverage/scalac-scoverage-plugin_2.13.6/1.4.8/c38bd513ee2322a3d4d1810883ba27c227c493ca/scalac-scoverage-plugin_2.13.6-1.4.8.jar" />
+          <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.scoverage/scalac-scoverage-runtime_2.13/1.4.8/777ebbad6c0d3182c05f8f88cc6aac23ca9a4f23/scalac-scoverage-runtime_2.13-1.4.8.jar" />
+          <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.scala-lang.modules/scala-xml_2.13/1.3.0/1db2b0fb6f454a9d34971b47158ee9dbe85d4eca/scala-xml_2.13-1.3.0.jar" />
+          <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.scala-lang/scala-library/2.13.6/ed7a2f528c7389ea65746c22a01031613d98ab3d/scala-library-2.13.6.jar" />
+        </processorPath>
+        <module name="PrintScript.printscript-conventions.scoverage" />
+      </profile>
+    </annotationProcessing>
     <bytecodeTargetLevel target="16" />
   </component>
 </project>

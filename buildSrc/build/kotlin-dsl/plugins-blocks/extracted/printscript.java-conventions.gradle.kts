@@ -1,8 +1,6 @@
 plugins {
     java
-                                                       
     scala
-
-                                                                                          
     application
+
 }

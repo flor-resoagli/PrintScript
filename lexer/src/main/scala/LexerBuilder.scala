@@ -5,8 +5,8 @@ trait LexerBuilder {
 }
 
 class DefaultLexerBuilder extends LexerBuilder {
-  
-  def build(): Lexer =
+
+  def build(): Lexer = {
     val tokenConditions = List[TokenCondition](
       new ColonCondition(),
       new SemicolonCondition(),
@@ -26,4 +26,5 @@ class DefaultLexerBuilder extends LexerBuilder {
       new LiteralStringCondition()
     )
     new Lexer(tokenConditions)
+  }
 }
