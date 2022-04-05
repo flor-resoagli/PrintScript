@@ -1,4 +1,3 @@
-
 import org.junit.Test
 import org.junit.Assert._
 
@@ -51,9 +50,9 @@ class LexerTesting {
   def test06_stringCondition() = {
     val string = "let variable = \"string\""
     val stringCondition = LiteralStringCondition()
-    assertTrue(stringCondition.apply(15, string).get == (23, LITERALSTRING.apply()))
+    assertTrue(stringCondition.apply(15, string).get == (22, LITERALSTRING.apply()))
     val string2 = "let variable = \"string with : punctuation * \""
-    assertTrue(stringCondition.apply(15, string2).get == (45, LITERALSTRING.apply()))
+    assertTrue(stringCondition.apply(15, string2).get == (44, LITERALSTRING.apply()))
   }
 
   @Test
@@ -73,7 +72,8 @@ class LexerTesting {
   def test08_token2() = {
     val lexerBuilder = new DefaultLexerBuilder()
     val lexer = lexerBuilder.build()
-    val input = "let variable: number = 1.5; \n let otherVariable2:string = \'a string with both numers 44 and punctuation **\';"
+    val input =
+      "let variable: number = 1.5; \n let otherVariable2:string = \'a string with both numers 44 and punctuation **\';"
     val tokens = lexer.tokenize(input)
     tokens.foreach(println)
     assert(tokens.size == 14)

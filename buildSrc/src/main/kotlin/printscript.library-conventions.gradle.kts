@@ -7,6 +7,7 @@ plugins {
 
     scala
 
+
     application
 }
 
