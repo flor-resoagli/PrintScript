@@ -10,10 +10,6 @@ case class LexicalRange(fromCol: Int, toCol: Int, fromLine: Int, toLine: Int)
 
 sealed trait TokenType { def toString(): String }
 
-sealed trait VariableType extends TokenType
-
-sealed trait LiteralType extends TokenType
-
 // DECLARATION: 'let'
 case class DECLARATION() extends TokenType { override def toString(): String = "DECLARATION" }
 
@@ -30,16 +26,16 @@ case class SEMICOLON() extends TokenType { override def toString(): String = "SE
 case class EQUAL() extends TokenType { override def toString(): String = "EQUAL" }
 
 //NUMBERTYPE: 'number'
-case class NUMBERTYPE() extends VariableType { override def toString(): String = "NUMBERTYPE" }
+case class NUMBERTYPE() extends TokenType { override def toString(): String = "NUMBERTYPE" }
 
 //STRINGTYPE: 'string'
-case class STRINGTYPE() extends VariableType { override def toString(): String = "STRINGTYPE" }
+case class STRINGTYPE() extends TokenType { override def toString(): String = "STRINGTYPE" }
 
 //LITERALSTRING: '["-']' + [a-zA-Z0-9]* + '["-']'
-case class LITERALSTRING() extends LiteralType { override def toString(): String = "LITERALSTRING" }
+case class LITERALSTRING() extends TokenType { override def toString(): String = "LITERALSTRING" }
 
 //LITERALNUMBER: '['0-9]*'
-case class LITERALNUMBER() extends LiteralType { override def toString(): String = "LITERALNUMBER" }
+case class LITERALNUMBER() extends TokenType { override def toString(): String = "LITERALNUMBER" }
 
 //SUM: '+'
 case class SUM() extends TokenType { override def toString(): String = "SUM" }
