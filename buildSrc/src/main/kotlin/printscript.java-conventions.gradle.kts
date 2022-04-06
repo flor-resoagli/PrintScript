@@ -27,6 +27,9 @@ dependencies {
     testImplementation("org.scalatest:scalatest_2.13:3.2.10")
     testImplementation("org.scalatestplus:junit-4-13_2.13:3.2.2.0")
 
+    implementation("org.junit.jupiter:junit-jupiter-engine:5.7.1")
+    implementation("org.junit.jupiter:junit-jupiter-api:5.7.1")
+
     // Need scala-xml at test runtime
     testRuntimeOnly("org.scala-lang.modules:scala-xml_2.13:1.2.0")
 

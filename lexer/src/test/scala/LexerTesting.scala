@@ -1,7 +1,8 @@
-import org.junit.Test
-import org.junit.Assert._
+import junit.framework.TestCase
+import org.junit.jupiter.api.{Test}
+import org.junit.Assert.*
 
-class LexerTesting {
+class LexerTesting extends TestCase {
 
   @Test
   def test01_endOfWordMethod() = {

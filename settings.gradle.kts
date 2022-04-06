@@ -1,4 +1,4 @@
 rootProject.name = "PrintScript"
 
-include("lexer", "parser")
-include("interpreter")
+include("lexer", "parser", "interpreter")
+include("cli")
