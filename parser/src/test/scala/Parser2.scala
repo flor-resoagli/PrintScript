@@ -34,37 +34,55 @@ class Parser2 {
 
     unparsedTokens.dequeue()
     unparsedTokens.front.tokenType match {
-      case IDENTIFIER() => Option.apply(DeclarationAssignationNode(Variable(unparsedTokens.dequeue().value), parseVariableType(), parseExpression(Option.empty[AST])))
+      case IDENTIFIER() => Option.apply(DeclarationAssignationNode(Variable(unparsedTokens.dequeue().value), parseVariableType(), parseAssignmentExpression()))
       case _ => error("Declaration must be followed by a variable")
     }
   }
 
-  private def parseExpression(expressionAST: Option[AST]): AST = {
-    checkIfValidEOL()
-    if(unparsedTokens.isEmpty) return expressionAST.get
-
+  private def parseAssignmentExpression(): AST = {
     //TODO: Extact method "checkIfValidTokenAndDequeueIt()"
     unparsedTokens.dequeue()
     checkIfNextTokenIsValid(EQUAL(), "=")
     unparsedTokens.dequeue()
 
 
+    parseExpression(Option.empty[AST])
+
+  }
+
+  //TODO: Check semicolon assertion
+  private def parseExpression(expressionAST: Option[AST]): AST = {
+    checkIfValidEOL()
+    if(unparsedTokens.isEmpty) return expressionAST.get
     unparsedTokens.front.tokenType match {
       case LITERALNUMBER() => parseExpression(Option.apply(ConstantNumb(unparsedTokens.dequeue().value.toDouble)))
       case LITERALSTRING() => parseExpression(Option.apply(ConstantString(unparsedTokens.dequeue().value)))
       case SUM() => parseExpression(parseBinaryOperator(expressionAST, PlusBinaryOperator()))
+      case SUB() => parseExpression(parseBinaryOperator(expressionAST, MinusBinaryOperator()))
+      case MUL() => parseExpression(parseBinaryOperator(expressionAST, MultiplyBinaryOperator()))
+      case DIV() => parseExpression(parseBinaryOperator(expressionAST, DivideBinaryOperator()))
+      case SEMICOLON() => expressionAST.get
       case _ => error(s"")
     }
-
   }
 
   private def parseBinaryOperator(maybeAst: Option[AST], operator: BinaryOperator) : Option[AST]  = {
-    if(maybeAst.isEmpty || unparsedTokens.tail.isEmpty) error("Expected expression")
+    unparsedTokens.dequeue()
+    if(maybeAst.isEmpty || unparsedTokens.isEmpty) error("Expected expression")
 
-    Option.apply(BinaryOperation(maybeAst.get, operator, parseExpression(Option.empty)))
-
+    Option.apply(BinaryOperation(maybeAst.get, operator, parseExpression(Option.empty[AST])))
 
   }
+
+
+//  private def parseSecondaryBinaryOperator(maybeAst: Option[AST], operator: BinaryOperator) : Option[AST]  = {
+//    unparsedTokens.dequeue()
+//    if(maybeAst.isEmpty || unparsedTokens.isEmpty) error("Expected expression")
+//
+//    Option.apply(BinaryOperation(maybeAst.get, operator, parseExpression(Option.empty[AST])))
+//
+//
+//  }
 
 
 
@@ -89,7 +107,7 @@ class Parser2 {
     if (unparsedTokens.nonEmpty && unparsedTokens.front.tokenType != expectedType) error(s"Expected ${expectedSymbol} but found ${unparsedTokens.front.tokenType}")
 
   private def checkIfValidEOL(): Unit = {
-    if (unparsedTokens.size == 0 || unparsedTokens.tail.isEmpty && (!unparsedTokens.front.tokenType.equals(SEMICOLON()))) error("Line should end with semicolon")
-    if (unparsedTokens.tail.isEmpty &&  unparsedTokens.front.tokenType.equals(SEMICOLON())) unparsedTokens.dequeue()
+    if (unparsedTokens.isEmpty || (unparsedTokens.tail.isEmpty && (!unparsedTokens.front.tokenType.equals(SEMICOLON())))) error("Line should end with semicolon")
+//    if (unparsedTokens.tail.isEmpty &&  unparsedTokens.front.tokenType.equals(SEMICOLON())) unparsedTokens.dequeue()
   }
 }
