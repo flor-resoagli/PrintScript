@@ -1,103 +1,109 @@
-import scala.language.postfixOps
-//  expr   : term ((PLUS | MINUS) term)*
-//  term   : factor ((MUL | DIV) factor)*
-//  factor : INTEGER | LPAREN expr RPAREN
-
-//exp: literal | var | op
-//op: exp op exp | exp
-//operator: + | - | * | /
-//literal: String | Number
-
-//trait or enum?
-sealed trait VariableType
-case class StringVariableType() extends VariableType
-case class NumberVariableType() extends VariableType
-
-sealed class BinaryOperator
-case class PlusBinaryOperator() extends BinaryOperator
-case class MinusBinaryOperator() extends BinaryOperator
-case class MultiplyBinaryOperator() extends BinaryOperator
-case class DivideBinaryOperator() extends BinaryOperator
-
-
-/*TODO: Replace VariableNode usages for a String*/
-sealed trait  AST
-//case class DeclarationAssignationNode(assignationNode: AssignationNode, variableTypeNode: VariableTypeNode)
-case class DeclarationAssignationNode(variable: Variable, variableTypeNode: VariableTypeNode, value: AST) extends AST
-case class AssignationNode(variable: String, value: AST) extends AST
-case class Variable(value: String) extends AST
-case class ConstantNumb(value: Double) extends AST
-case class ConstantString(value: String) extends AST
-case class BinaryOperation(left: AST, operator: BinaryOperator, right: AST) extends AST
-case class VariableTypeNode(value: VariableType) extends AST
-case class PrintNode(value: AST) extends AST
-
-
-class Parser() {
-
+class Parser {
 
   private val unparsedTokens = new scala.collection.mutable.Queue[Token]()
-
 
   def error(msg: String): Nothing =
     throw new Exception(msg)
 
+
   def parseTokens(tokens: List[Token]): List[AST] = {
-     List()
+    if(tokens.isEmpty) return List()
+    unparsedTokens.enqueueAll(tokens)
+    val parseTree = initialParse(Option.empty[AST]).toList
+    if(unparsedTokens.isEmpty) parseTree
+    else parseTree ++ initialParse(Option.empty[AST]).toList
   }
 
   def parse(tokens: List[Token]): Option[AST] = {
     if(tokens.isEmpty) return Option.empty[AST]
     unparsedTokens.enqueueAll(tokens)
-    parseExpression(Option.empty[AST])
+    initialParse(Option.empty[AST])
   }
 
-  /*TODO: 1. LiteralNumber and string could call their own method that checks forward
-  *       2. Identifier allowed as first in line*/
-  private def parseExpression(ast: Option[AST]): Option[AST] = {
-    checkInvalidEOF()
-    if(unparsedTokens.isEmpty) return ast
 
+  //TODO: Identifier can be on its own as statement Ej: variable; Possible soulution -> method parseIdentifier() that first chackes currentoken.tail and the goes to parseExpression()
+  private def initialParse(ast: Option[AST]): Option[AST] = {
     unparsedTokens.front.tokenType match {
-      case LITERALNUMBER() => Option.apply(ConstantNumb(unparsedTokens.dequeue().value.toDouble))
-      case LITERALSTRING() => Option.apply(ConstantString(unparsedTokens.dequeue().value))
-      case SEMICOLON() => checkEOF(ast)
-//      case SUM() => parseSum(ast)
       case DECLARATION() => parseDeclaration()
+      case IDENTIFIER() => Option.apply(AssignationNode(Variable((unparsedTokens.front.value)), parseAssignmentExpression()))
+      case PRINTLN() => Option.apply(PrintNode(parseExpression(Option.empty, unparsedTokens)))
       case _ => error(s"Expected literal, variable or 'let' but found ${unparsedTokens.dequeue().tokenType}")
     }
   }
-
-
-  private def parseLiteral(): Option[AST] = {
-    unparsedTokens.front.tokenType match {
-      case LITERALNUMBER() => Option.apply(ConstantNumb(unparsedTokens.dequeue().value.toDouble))
-      case LITERALSTRING() => Option.apply(ConstantString(unparsedTokens.dequeue().value))
-      case _ => error(s"Expected literal, variable or 'let' but found ${unparsedTokens.dequeue().tokenType}")
-    }
-  }
-
-  def parseSum(maybeAst: Option[AST]): Option[AST] = {
-    unparsedTokens.dequeue()
-    unparsedTokens.front.tokenType match {
-//      case SUM() => parseSum(Option.apply(BinaryOperation(maybeAst.get, PlusBinaryOperator(), parseTerm(Option.empty[AST]))))
-//      case SUB() => parseSum(Option.apply(BinaryOperation(maybeAst.get, MinusBinaryOperator(), parseTerm(Option.empty[AST]))))
-      case _ => error("")
-    }
-
-  }
-
+  
+  
   private def parseDeclaration(): Option[AST] = {
-    checkIfInvalidEOL("variable name")
+    checkIfUnparsedTokensEmpty("variable name")
 
     unparsedTokens.dequeue()
     unparsedTokens.front.tokenType match {
-      case IDENTIFIER() => Option.apply(DeclarationAssignationNode(Variable(unparsedTokens.dequeue().value), parseVariableType(), parseAssignation()))
+      case IDENTIFIER() => Option.apply(DeclarationAssignationNode(Variable(unparsedTokens.dequeue().value), parseVariableType(), parseAssignmentExpression()))
       case _ => error("Declaration must be followed by a variable")
     }
   }
 
+  private def parseAssignmentExpression(): AST = {
+    //TODO: Extact method "checkIfValidTokenAndDequeueIt()"
+    unparsedTokens.dequeue()
+    checkIfNextTokenIsValid(EQUAL(), "=")
+    unparsedTokens.dequeue()
+
+
+    parseExpression(Option.empty[AST], unparsedTokens)
+
+  }
+
+  /*TODO:
+     1.Check semicolon assertion
+     2. Instead of mutable colection, next call to methos could pass "tail" as parameter
+   */
+  private def parseExpression(expressionAST: Option[AST], unparsedTokens: scala.collection.mutable.Queue[Token]): AST = {
+    checkIfValidEOL()
+    if(unparsedTokens.isEmpty) return expressionAST.get
+    unparsedTokens.front.tokenType match {
+      case LITERALNUMBER() => parseExpression(Option.apply(ConstantNumb(unparsedTokens.dequeue().value.toDouble)), unparsedTokens)
+      case LITERALSTRING() => parseExpression(Option.apply(ConstantString(unparsedTokens.dequeue().value)), unparsedTokens)
+      case SUM() => parseExpression(parseBinaryOperator(expressionAST, PlusBinaryOperator()), unparsedTokens)
+      case SUB() => parseExpression(parseBinaryOperator(expressionAST, MinusBinaryOperator()), unparsedTokens)
+      case MUL() => parseExpression(parseSecondaryBinaryOperator(expressionAST, MultiplyBinaryOperator()), unparsedTokens)
+      case DIV() => parseExpression(parseSecondaryBinaryOperator(expressionAST, DivideBinaryOperator()), unparsedTokens)
+      case IDENTIFIER() => parseExpression(Option.apply(Variable(unparsedTokens.dequeue().value)), unparsedTokens)
+      case SEMICOLON() => parseSemicolon(expressionAST)
+      case _ => error(s"")
+    }
+  }
+
+  private def parseSemicolon(expressionAST: Option[AST]): AST ={
+    if(unparsedTokens.tail.nonEmpty) error("Semicolon only allowed once at end of line")
+    expressionAST.get
+  }
+
+  private def parseBinaryOperator(maybeAst: Option[AST], operator: BinaryOperator) : Option[AST]  = {
+    unparsedTokens.dequeue()
+    if(maybeAst.isEmpty || unparsedTokens.isEmpty) error("Expected expression")
+
+    Option.apply(BinaryOperation(maybeAst.get, operator, parseExpression(Option.empty[AST], unparsedTokens)))
+
+  }
+
+
+  private def parseSecondaryBinaryOperator(maybeAst: Option[AST], operator: BinaryOperator) : Option[AST]  = {
+    unparsedTokens.dequeue()
+    if(maybeAst.isEmpty || unparsedTokens.isEmpty) error("Expected expression")
+
+    val newQueue = scala.collection.mutable.Queue[Token]()
+    newQueue.enqueue(unparsedTokens.dequeue())
+    Option.apply(BinaryOperation(maybeAst.get, operator, parseExpression(Option.empty[AST], newQueue)))
+
+
+  }
+
+
+
+
+
   private def parseVariableType(): VariableTypeNode = {
+    //TODO: Can use the checkIfValidTokenAndDequeueIt() methos if instead of dequeuing in Variable() we use front
     checkIfNextTokenIsValid(COLON(), ":")
 
     unparsedTokens.dequeue()
@@ -108,39 +114,14 @@ class Parser() {
     }
   }
 
-
-  private def parseAssignation(): AST = {
-    unparsedTokens.dequeue()
-    checkIfNextTokenIsValid(EQUAL(), "=")
-
-    unparsedTokens.dequeue()
-    val ast = parseExpression(Option.empty[AST])
-    ast.get
-  }
+  private def checkIfUnparsedTokensEmpty(expected: String): Unit  =
+    if (unparsedTokens.isEmpty) error(s"Expected ${expected} but nothing was found")
 
   private def checkIfNextTokenIsValid(expectedType: TokenType, expectedSymbol: String): Unit =
     if (unparsedTokens.nonEmpty && unparsedTokens.front.tokenType != expectedType) error(s"Expected ${expectedSymbol} but found ${unparsedTokens.front.tokenType}")
 
-
-  private def checkIfInvalidEOL(expected: String): Unit  =
-    if (unparsedTokens.isEmpty ) error(s"Expected ${expected} but nothing was found")
-
-
-  private def checkInvalidEOF(): Unit = {
-    if (unparsedTokens.tail.isEmpty && !unparsedTokens.front.tokenType.equals(SEMICOLON())) error("Line should end with semicolon")
+  private def checkIfValidEOL(): Unit = {
+    if (unparsedTokens.isEmpty || (unparsedTokens.tail.isEmpty && (!unparsedTokens.front.tokenType.equals(SEMICOLON())))) error("Line should end with semicolon")
+//    if (unparsedTokens.tail.isEmpty &&  unparsedTokens.front.tokenType.equals(SEMICOLON())) unparsedTokens.dequeue()
   }
-
-  //TODO: change error msg
-  def checkEOF(ast: Option[AST]): Option[AST] =  {
-    unparsedTokens.dequeue()
-    if(unparsedTokens.isEmpty  && ast.isDefined) ast
-    else error("Expected EOF")
-  }
-
-
-
-
-
 }
-
-
