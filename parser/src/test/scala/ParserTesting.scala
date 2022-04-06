@@ -4,25 +4,31 @@ import org.junit.Assert._
 class ParserTesting {
 
   val lexer = new DefaultLexerBuilder().build()
-  val parser = new Parser();
+  val parser = new Parser2();
+
+//  parser.parse(tokens)
+//  assertTrue(true)
 
   @Test
-  def test01_singleLiteralNumberShouldSuceed() = {
+  def test01_singleLiteralNumberShouldFail() = {
     val input = "1;"
-    val tokens = lexer.tokenize(input)
-
-    val expected = ConstantNumb(1);
-    assertTrue(expected == parser.parse(tokens).get)
-  }
-
-  @Test
-  def test02_singleLiteralNumberShouldFailWithoutFinalSemiColon() = {
-    val input = "1"
     val tokens = lexer.tokenize(input)
 
     val thrown = assertThrows(classOf[Exception], () => parser.parse(tokens))
 
-    assertTrue(thrown.getMessage.contains("Line should end with semicolon"))
+    assertTrue(thrown.getMessage.contains(""))
+  }
+
+  @Test
+  def test02_singleLiteralNumberShouldFailWithoutFinalSemiColon() = {
+    val input = "variable = 3"
+    val tokens = lexer.tokenize(input)
+
+    val expected = AssignationNode("variable", ConstantNumb(3))
+
+    assertTrue(false)
+
+
 
   }
   @Test
@@ -41,8 +47,7 @@ class ParserTesting {
     val input = "let a: number = 1;"
     val tokens = lexer.tokenize(input)
 
-    val expected = DeclarationAssignationNode(Variable("a"),VariableTypeNode(NumberTypee()),ConstantNumb(1.0))
-
+    val expected = DeclarationAssignationNode(Variable("a"),VariableTypeNode(NumberVariableType()),ConstantNumb(1.0))
 
     assertTrue(expected == parser.parse(tokens).get)
 
@@ -53,9 +58,10 @@ class ParserTesting {
     val input = " variable: number = 1;"
     val tokens = lexer.tokenize(input)
 
+
     val thrown = assertThrows(classOf[Exception], () => parser.parse(tokens))
 
-    assertTrue(thrown.getMessage.contains(s"Expected literal, variable or 'let' but found "))
+    assertTrue(thrown.getMessage.contains(s"Expected = but found NUMBERTYPE"))
 
   }
   @Test
@@ -108,7 +114,7 @@ class ParserTesting {
 
     val thrown = assertThrows(classOf[Exception], () => parser.parse(tokens))
 
-    assertTrue(thrown.getMessage.contains("Expected EOF"))
+    assertTrue(thrown.getMessage.contains("Expected literal, variable or 'let' but found "))
 
   }
   @Test
@@ -119,6 +125,47 @@ class ParserTesting {
     val thrown = assertThrows(classOf[Exception], () => parser.parse(tokens))
 
     assertTrue(thrown.getMessage.contains(s"Expected = but found "))
+  }
+  @Test
+  def test12_SimpleAdditionDeclarationShouldSucceed() = {
+    val input = "let variable: number = 1+1;"
+    val tokens = lexer.tokenize(input)
+
+    val expected = DeclarationAssignationNode(Variable("variable"),VariableTypeNode(NumberVariableType()),BinaryOperation(ConstantNumb(1.0),PlusBinaryOperator(),ConstantNumb(1.0)))
+
+    assertTrue(expected == parser.parse(tokens).get)
+  }
+
+  @Test
+  def test13_SimpleSubstractionDeclarationShouldSucceed() = {
+    val input = "let variable: number = 1-1;"
+    val tokens = lexer.tokenize(input)
+
+    val expected = DeclarationAssignationNode(Variable("variable"),VariableTypeNode(NumberVariableType()),BinaryOperation(ConstantNumb(1.0),MinusBinaryOperator(),ConstantNumb(1.0)))
+
+
+    assertTrue(expected == parser.parse(tokens).get)
+  }
+
+  @Test
+  def test14_AssigningAPlusOperatorShouldFail() = {
+    val input = "let variable: number = +;"
+    val tokens = lexer.tokenize(input)
+
+    val thrown = assertThrows(classOf[Exception], () => parser.parse(tokens))
+
+    assertTrue(thrown.getMessage.contains(s"Expected expression"))
+  }
+
+  @Test
+  def test15_AssigningTwoConsecutivePlusOperatorsShouldFail() = {
+    val input = "let variable: number = 2++;"
+
+    val tokens = lexer.tokenize(input)
+
+    val thrown = assertThrows(classOf[Exception], () => parser.parse(tokens))
+
+    assertTrue(thrown.getMessage.contains(s"Expected expression"))
   }
 
 

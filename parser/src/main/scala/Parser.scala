@@ -10,20 +10,27 @@ import scala.language.postfixOps
 
 //trait or enum?
 sealed trait VariableType
-case class StringTypee() extends VariableType
-case class NumberTypee() extends VariableType
+case class StringVariableType() extends VariableType
+case class NumberVariableType() extends VariableType
 
-//sealed trait expression types
-sealed trait ExpressionType
+sealed class BinaryOperator
+case class PlusBinaryOperator() extends BinaryOperator
+case class MinusBinaryOperator() extends BinaryOperator
+case class MultiplyBinaryOperator() extends BinaryOperator
+case class DivideBinaryOperator() extends BinaryOperator
 
 
+/*TODO: Replace VariableNode usages for a String*/
 sealed trait  AST
-case class Expression()
+//case class DeclarationAssignationNode(assignationNode: AssignationNode, variableTypeNode: VariableTypeNode)
 case class DeclarationAssignationNode(variable: Variable, variableTypeNode: VariableTypeNode, value: AST) extends AST
+case class AssignationNode(variable: String, value: AST) extends AST
 case class Variable(value: String) extends AST
 case class ConstantNumb(value: Double) extends AST
 case class ConstantString(value: String) extends AST
+case class BinaryOperation(left: AST, operator: BinaryOperator, right: AST) extends AST
 case class VariableTypeNode(value: VariableType) extends AST
+case class PrintNode(value: AST) extends AST
 
 
 class Parser() {
@@ -35,12 +42,18 @@ class Parser() {
   def error(msg: String): Nothing =
     throw new Exception(msg)
 
+  def parseTokens(tokens: List[Token]): List[AST] = {
+     List()
+  }
+
   def parse(tokens: List[Token]): Option[AST] = {
     if(tokens.isEmpty) return Option.empty[AST]
     unparsedTokens.enqueueAll(tokens)
     parseExpression(Option.empty[AST])
   }
 
+  /*TODO: 1. LiteralNumber and string could call their own method that checks forward
+  *       2. Identifier allowed as first in line*/
   private def parseExpression(ast: Option[AST]): Option[AST] = {
     checkInvalidEOF()
     if(unparsedTokens.isEmpty) return ast
@@ -53,6 +66,25 @@ class Parser() {
       case DECLARATION() => parseDeclaration()
       case _ => error(s"Expected literal, variable or 'let' but found ${unparsedTokens.dequeue().tokenType}")
     }
+  }
+
+
+  private def parseLiteral(): Option[AST] = {
+    unparsedTokens.front.tokenType match {
+      case LITERALNUMBER() => Option.apply(ConstantNumb(unparsedTokens.dequeue().value.toDouble))
+      case LITERALSTRING() => Option.apply(ConstantString(unparsedTokens.dequeue().value))
+      case _ => error(s"Expected literal, variable or 'let' but found ${unparsedTokens.dequeue().tokenType}")
+    }
+  }
+
+  def parseSum(maybeAst: Option[AST]): Option[AST] = {
+    unparsedTokens.dequeue()
+    unparsedTokens.front.tokenType match {
+//      case SUM() => parseSum(Option.apply(BinaryOperation(maybeAst.get, PlusBinaryOperator(), parseTerm(Option.empty[AST]))))
+//      case SUB() => parseSum(Option.apply(BinaryOperation(maybeAst.get, MinusBinaryOperator(), parseTerm(Option.empty[AST]))))
+      case _ => error("")
+    }
+
   }
 
   private def parseDeclaration(): Option[AST] = {
@@ -70,8 +102,8 @@ class Parser() {
 
     unparsedTokens.dequeue()
     unparsedTokens.front.tokenType match {
-      case STRINGTYPE() => VariableTypeNode(StringTypee())
-      case NUMBERTYPE() => VariableTypeNode(NumberTypee())
+      case STRINGTYPE() => VariableTypeNode(StringVariableType())
+      case NUMBERTYPE() => VariableTypeNode(NumberVariableType())
       case _ => error("Expected variable type but found " + unparsedTokens.dequeue().tokenType)
     }
   }
@@ -98,7 +130,7 @@ class Parser() {
     if (unparsedTokens.tail.isEmpty && !unparsedTokens.front.tokenType.equals(SEMICOLON())) error("Line should end with semicolon")
   }
 
-  //TODO: change errror msg
+  //TODO: change error msg
   def checkEOF(ast: Option[AST]): Option[AST] =  {
     unparsedTokens.dequeue()
     if(unparsedTokens.isEmpty  && ast.isDefined) ast
