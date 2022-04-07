@@ -70,15 +70,59 @@ class LexerTesting extends TestCase {
   }
 
   @Test
-  def test08_token2() = {
+  def test08_tokenize2() = {
     val lexerBuilder = new DefaultLexerBuilder()
     val lexer = lexerBuilder.build()
     val input =
       "let variable: number = 1.5; \n let otherVariable2:string = \'a string with both numers 44 and punctuation **\';"
     val tokens = lexer.tokenize(input)
-    tokens.foreach(println)
     assert(tokens.size == 14)
+    assert(tokens(0).tokenType == DECLARATION.apply())
+    assert(tokens(1).tokenType == IDENTIFIER.apply())
+    assert(tokens(1).value == "variable")
+    assert(tokens(2).tokenType == COLON.apply())
+    assert(tokens(3).tokenType == NUMBERTYPE.apply())
+    assert(tokens(4).tokenType == EQUAL.apply())
+    assert(tokens(5).tokenType == LITERALNUMBER.apply())
+    assert(tokens(5).value == "1.5")
+    assert(tokens(6).tokenType == SEMICOLON.apply())
+    assert(tokens(7).tokenType == DECLARATION.apply())
+    assert(tokens(8).tokenType == IDENTIFIER.apply())
+    assert(tokens(8).value == "otherVariable2")
+    assert(tokens(9).tokenType == COLON.apply())
+    assert(tokens(10).tokenType == STRINGTYPE.apply())
+    assert(tokens(11).tokenType == EQUAL.apply())
+    assert(tokens(12).tokenType == LITERALSTRING.apply())
+    assert(tokens(12).value == "\'a string with both numers 44 and punctuation **\'")
+    assert(tokens(13).tokenType == SEMICOLON.apply())
 
+  }
+
+  @Test
+  def test09_tokenize3() = {
+    val lexerBuilder = new DefaultLexerBuilder()
+    val lexer = lexerBuilder.build()
+    val input = "let variable: number = 1.5; \n let variable1: number = 1;"
+    val tokens = lexer.tokenize(input)
+    assert(tokens.size == 14)
+    assert(tokens(0).tokenType == DECLARATION.apply())
+    assert(tokens(1).tokenType == IDENTIFIER.apply())
+    assert(tokens(1).value == "variable")
+    assert(tokens(2).tokenType == COLON.apply())
+    assert(tokens(3).tokenType == NUMBERTYPE.apply())
+    assert(tokens(4).tokenType == EQUAL.apply())
+    assert(tokens(5).tokenType == LITERALNUMBER.apply())
+    assert(tokens(5).value == "1.5")
+    assert(tokens(6).tokenType == SEMICOLON.apply())
+    assert(tokens(7).tokenType == DECLARATION.apply())
+    assert(tokens(8).tokenType == IDENTIFIER.apply())
+    assert(tokens(8).value == "variable1")
+    assert(tokens(9).tokenType == COLON.apply())
+    assert(tokens(10).tokenType == NUMBERTYPE.apply())
+    assert(tokens(11).tokenType == EQUAL.apply())
+    assert(tokens(12).tokenType == LITERALNUMBER.apply())
+    assert(tokens(12).value == "1")
+    assert(tokens(13).tokenType == SEMICOLON.apply())
   }
 
 }
