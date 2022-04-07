@@ -18,7 +18,7 @@ case class DivideBinaryOperator() extends BinaryOperator
 
 
 sealed trait  AST
-//case class DeclarationAssignationNode(variableTypeNode: VariableTypeNode, assignationNode: AssignationNode)
+//case class DeclarationAssignationNode(variableTypeNode: VariableTypeNode, assignationNode: AssignationNode) extends AST
 case class DeclarationAssignationNode(variable: Variable, variableTypeNode: VariableTypeNode, value: AST) extends AST
 case class AssignationNode(variable: Variable, value: AST) extends AST
 case class Variable(value: String) extends AST
