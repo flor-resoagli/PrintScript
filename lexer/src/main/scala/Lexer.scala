@@ -34,7 +34,7 @@ class Lexer(tokenConditions: List[TokenCondition]) {
 
     while (position < input.length) {
       var found = false
-      if (input(position) == ' ' || input(position) == '\n') {
+      while (input(position) == ' ' || input(position) == '\n') {
         position += 1
       }
       for (tokenCondition <- tokenConditions) {
