@@ -39,6 +39,10 @@ jobs:
         uses: codecov/codecov-action@v2.1.0
         with:
           token: 5bbe4d96-a5bc-4c35-945a-afdc0622c0b4
+          
+      - name: Gradle Build Action
+        uses: gradle/gradle-build-action@v2.1.5
+      
         
 #       - name: Scalafmt Action
 #         uses: openlawteam/scalafmt-ci@v2.0.2
