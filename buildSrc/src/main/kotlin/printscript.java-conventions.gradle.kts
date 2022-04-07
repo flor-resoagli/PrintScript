@@ -35,6 +35,13 @@ dependencies {
     implementation("com.github.eugenesy.scapegoat:gradle-scapegoat-plugin:0.2.0")
     // coverage
     implementation("org.scoverage:gradle-scoverage:7.0.0")
+
+    // https://mvnrepository.com/artifact/org.rogach/scallop
+    implementation("org.rogach:scallop_3:4.1.0")
+
+    // https://mvnrepository.com/artifact/com.lihaoyi/fansi
+    implementation("com.lihaoyi:fansi_3:0.3.1")
+
 }
 
 tasks.test {
