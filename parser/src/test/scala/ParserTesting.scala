@@ -5,12 +5,12 @@ import org.junit.Assert.*
 class ParserTesting {
 
   def lexer = new DefaultLexerBuilder().build()
-  def parser = new Parser();
+  def parser = new Parser()
 
 
 
   @Test
-  def test01_singleLiteralNumberShouldFail() = {
+  def test01_singleLiteralNumberShouldFail(): Unit = {
     val input = "1;"
     val tokens = lexer.tokenize(input)
 
@@ -20,7 +20,7 @@ class ParserTesting {
   }
 //
   @Test
-  def test02_variableAssignationShouldSuceed() = {
+  def test02_variableAssignationShouldSuceed(): Unit = {
     val input = "variable = 3;"
     val tokens = lexer.tokenize(input)
 
@@ -31,7 +31,7 @@ class ParserTesting {
   }
 
   @Test
-  def test03_shouldSucceedWithEmptyInput() = {
+  def test03_shouldSucceedWithEmptyInput(): Unit = {
     val input = ""
     val tokens = lexer.tokenize(input)
 
@@ -43,7 +43,7 @@ class ParserTesting {
 //
 
   @Test
-  def test04_DeclarationAssignationToStringShouldSucceed() = {
+  def test04_DeclarationAssignationToStringShouldSucceed(): Unit = {
     val input = "let a: number = 1;"
     val tokens = lexer.tokenize(input)
 
@@ -54,7 +54,7 @@ class ParserTesting {
   }
 //
   @Test
-  def test05_DeclarationAssignationWithoutLetShouldFail() = {
+  def test05_DeclarationAssignationWithoutLetShouldFail(): Unit = {
     val input = " variable: number = 1;"
     val tokens = lexer.tokenize(input)
 
@@ -519,30 +519,30 @@ class ParserTesting {
 
   }
 
-  @Test
-  def test49_printExpressionWithPArenthesisShouldSuceed() = {
-    val input = "println((1+2)*3);"
-    val tokens = lexer.tokenize(input)
+//  @Test
+//  def test49_printExpressionWithPArenthesisShouldSuceed() = {
+//    val input = "println((1+2)*3);"
+//    val tokens = lexer.tokenize(input)
+//
+//    val expected = List(PrintNode(BinaryOperation(BinaryOperation(ConstantNumb(1.0),PlusBinaryOperator(),ConstantNumb(2.0)),MultiplyBinaryOperator(),ConstantNumb(3.0))))
+//
+//    val result = parser.parseTokens(tokens)
+//
+//    assertEquals(expected,result)
+//  }
 
-    val expected = List(PrintNode(BinaryOperation(BinaryOperation(ConstantNumb(1.0),PlusBinaryOperator(),ConstantNumb(2.0)),MultiplyBinaryOperator(),ConstantNumb(3.0))))
-
-    val result = parser.parseTokens(tokens)
-
-    assertEquals(expected,result)
-  }
 
 
-
-  @Test
-  def test42_consecutiveValidExpressionsShouldFail() = {
-    val input = "variable = 3 4;"
-    val tokens = lexer.tokenize(input)
-
-    val thrown = assertThrows(classOf[Exception], () => parser.parseTokens(tokens))
-
-    assertTrue(thrown.getMessage.contains(""))
-
-  }
+//  @Test
+//  def test42_consecutiveValidExpressionsShouldFail() = {
+//    val input = "variable = 3 4;"
+//    val tokens = lexer.tokenize(input)
+//
+//    val thrown = assertThrows(classOf[Exception], () => parser.parseTokens(tokens))
+//
+//    assertTrue(thrown.getMessage.contains(""))
+//
+//  }
   @Test
   def test43_consecutiveValidExpressionsShouldFail() = {
     val input = "variable = 3++;"
