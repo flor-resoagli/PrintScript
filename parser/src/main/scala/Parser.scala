@@ -116,8 +116,8 @@ class Parser() {
 
     if (tokensToParse.isEmpty) return expressionAST.get
     tokensToParse.front.tokenType match {
-      case LITERALNUMBER() => parseExpression(parseLiteralNumber(tokensToParse), tokensToParse)
-      case LITERALSTRING() => parseExpression(Option.apply(ConstantString(tokensToParse.dequeue().value.replace("\"", ""))), tokensToParse)
+      case LITERALNUMBER() => parseExpression(parseLiteral(tokensToParse, LITERALNUMBER()), tokensToParse)
+      case LITERALSTRING() => parseExpression(parseLiteral(tokensToParse, LITERALSTRING()), tokensToParse)
       case SUM() => parseExpression(parseLowPriorityBinaryOperator(expressionAST, PlusBinaryOperator(), tokensToParse), tokensToParse)
       case SUB() => parseExpression(parseLowPriorityBinaryOperator(expressionAST, MinusBinaryOperator(), tokensToParse), tokensToParse)
       case MUL() => parseExpression(parseHighPriorityBinaryOperator(expressionAST, MultiplyBinaryOperator(), tokensToParse), tokensToParse)
@@ -129,8 +129,15 @@ class Parser() {
     }
   }
 
-  private def parseLiteralNumber(tokensToParse: mutable.Queue[Token]): Option[AST] = {
-    Option(ConstantNumb(tokensToParse.dequeue().value.toDouble))
+  private def parseLiteral(tokensToParse: mutable.Queue[Token], tokenType: TokenType): Option[AST] = {
+    if(tokensToParse.tail.nonEmpty && (List(IDENTIFIER(), LITERALNUMBER(), LITERALSTRING(), LEFTPARENTHESIS()) contains tokensToParse.tail.head.tokenType))error(s"Literal cannot be followed by: ${tokensToParse.dequeue().tokenType}")
+
+    tokenType match {
+      case LITERALNUMBER() => Option(ConstantNumb(tokensToParse.dequeue().value.toDouble))
+      case LITERALSTRING() => Option(ConstantString(tokensToParse.dequeue().value.replace("\"", "")))
+      case _ => error(s"Expected literal but found ${tokensToParse.dequeue().tokenType}")
+    }
+
   }
 
   private def parseLowPriorityBinaryOperator(maybeAst: Option[AST], operator: BinaryOperator, tokensToParse: scala.collection.mutable.Queue[Token]): Option[AST] = {
@@ -150,15 +157,15 @@ class Parser() {
 
     var buildingAST = Option.empty[AST]
     while (unparsedTokens.nonEmpty && !unparsedTokens.front.tokenType.equals(RIGHTPARENTHESIS())) {
-      if (unparsedTokens.front.tokenType == LEFTPARENTHESIS()) buildingAST = Option.apply(parseExpression(Option.empty[AST], unparsedTokens))
+      if (unparsedTokens.front.tokenType == LEFTPARENTHESIS()) buildingAST = parseLeftParenthesis()
       newQueue.enqueue(unparsedTokens.dequeue())
     }
 
     unparsedTokens.dequeue()
     Option.apply(parseExpression(buildingAST, newQueue))
 
-
   }
+
 
 
   private def parseHighPriorityBinaryOperator(maybeAst: Option[AST], operator: BinaryOperator, tokensToParse: scala.collection.mutable.Queue[Token]): Option[AST] = {
