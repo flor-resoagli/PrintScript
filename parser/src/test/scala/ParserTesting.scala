@@ -4,8 +4,8 @@ import org.junit.Assert.*
 
 class ParserTesting {
 
-  val lexer = new DefaultLexerBuilder().build()
-  val parser = new Parser();
+  def lexer = new DefaultLexerBuilder().build()
+  def parser = new Parser();
 
 
 
