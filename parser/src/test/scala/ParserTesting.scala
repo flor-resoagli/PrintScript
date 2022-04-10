@@ -4,8 +4,8 @@ import org.junit.Assert.*
 
 class ParserTesting {
 
-  def lexer = new DefaultLexerBuilder().build()
-  def parser = new Parser()
+  def lexer: Lexer = new DefaultLexerBuilder().build()
+  def parser: DefaultParser = new DefaultParser()
 
 
 
@@ -508,10 +508,6 @@ class ParserTesting {
 
     val tokens = lexer.tokenize(input)
 
-    val expected = List(
-      DeclarationAssignationNode(Variable("variable"),VariableTypeNode(NumberVariableType()),ConstantNumb(1.5)),
-      DeclarationAssignationNode(Variable("variable1"),VariableTypeNode(StringVariableType()),ConstantString("s")))
-
 
       val thrown = assertThrows(classOf[Exception], () => parser.parseTokens(tokens))
 
@@ -520,7 +516,7 @@ class ParserTesting {
   }
 
   @Test
-  def test49_printExpressionWithPArenthesisShouldSuceed() = {
+  def test49_printExpressionWithPArenthesisShouldSuceed(): Unit = {
     val input = "println((1+2)*3);"
     val tokens = lexer.tokenize(input)
 
@@ -534,7 +530,7 @@ class ParserTesting {
 
 
   @Test
-  def test42_consecutiveValidExpressionsShouldFail() = {
+  def test42_consecutiveValidExpressionsShouldFail(): Unit = {
     val input = "variable = 3 4;"
     val tokens = lexer.tokenize(input)
 
@@ -544,7 +540,7 @@ class ParserTesting {
 
   }
   @Test
-  def test43_consecutiveValidExpressionsShouldFail() = {
+  def test43_consecutiveValidExpressionsShouldFail(): Unit= {
     val input = "variable = 3++;"
     val tokens = lexer.tokenize(input)
 
@@ -555,7 +551,7 @@ class ParserTesting {
   }
 
   @Test
-  def test48_consecutiveOperatorsExpressionsShouldFail() = {
+  def test48_consecutiveOperatorsExpressionsShouldFail(): Unit = {
     val input = "variable = 3 * +;"
     val tokens = lexer.tokenize(input)
 
@@ -566,7 +562,7 @@ class ParserTesting {
 
   }
   @Test
-  def test44_expressionEndingWithLeftParenthesisShouldFail() = {
+  def test44_expressionEndingWithLeftParenthesisShouldFail(): Unit = {
     val input = "variable = 3 + (;"
     val tokens = lexer.tokenize(input)
 
@@ -576,7 +572,7 @@ class ParserTesting {
 
   }
   @Test
-  def test45_expressionStartingWithParenthesisShouldFail() = {
+  def test45_expressionStartingWithParenthesisShouldFail(): Unit= {
     val input = "variable = ) + 3;"
     val tokens = lexer.tokenize(input)
 
@@ -587,7 +583,7 @@ class ParserTesting {
   }
 
   @Test
-  def test46_divisionFollowedByParenthesisShouldSucceed() = {
+  def test46_divisionFollowedByParenthesisShouldSucceed(): Unit = {
     val input = "variable = 2 / (3+2);"
     val tokens = lexer.tokenize(input)
 
@@ -602,7 +598,7 @@ class ParserTesting {
   }
 
   @Test
-  def test47_assigningSimpleAdditionBetweenParenthesisShouldSucceed() = {
+  def test47_assigningSimpleAdditionBetweenParenthesisShouldSucceed(): Unit = {
     val input = "variable = (3+2);"
     val tokens = lexer.tokenize(input)
 
@@ -634,6 +630,18 @@ class ParserTesting {
 
     assertTrue(thrown.getMessage.contains(""))
 
+  }
+
+  @Test
+  def test57_concatOfStringsWithPlusOperatorShouldSucceed(): Unit = {
+    val input = "variable = \"hola\"+\"hola2\";"
+    val tokens = lexer.tokenize(input)
+
+    val expected  = List(AssignationNode(Variable("variable"),BinaryOperation(ConstantString("hola"),PlusBinaryOperator(),ConstantString("hola2"))))
+
+    val result = parser.parseTokens(tokens)
+
+    assertEquals(expected, result)
   }
 
 
