@@ -1,205 +1,207 @@
-case class Token(tokenType: TokenType, from: Int, to: Int, value: String)
+import scala.annotation.tailrec
+import scala.collection.{immutable, mutable}
+import scala.collection.mutable.Queue
 
+def isLeftParen(unparsedTokens: mutable.Queue[Token]): Boolean = {
+  unparsedTokens.isEmpty || unparsedTokens.front.tokenType ==  LEFTPARENTHESIS()
+}
 
-sealed trait TokenType  { def toString (): String }
+def toImmutable(queue: mutable.Queue[Token]): immutable.Queue[Token] = {
+  immutable.Queue(queue.toList:_*)
+}
 
-// DECLARATION: 'let'
-case class DECLARATION() extends TokenType { override def toString() : String = "DECLARATION" }
-
-//IDENTIFIER: variable name - [a-zA-Z][a-zA-Z0-9]*
-case class IDENTIFIER() extends TokenType { override def toString() : String = "IDENTIFIER" }
-
-//COLON: ':'
-case class COLON() extends TokenType { override def toString() : String = "COLON" }
-
-//SEMICOLON: ';'
-case class SEMICOLON() extends TokenType { override def toString() : String = "SEMICOLON" }
-
-//EQUAL: '='
-case class EQUAL() extends TokenType { override def toString() : String = "EQUAL" }
-
-//NUMBERTYPE: 'number'
-case class NUMBERTYPE() extends TokenType { override def toString() : String = "NUMBERTYPE" }
-
-//STRINGTYPE: 'string'
-case class STRINGTYPE() extends TokenType { override def toString() : String = "STRINGTYPE" }
-
-//LITERALSTRING: '["-']' + [a-zA-Z0-9]* + '["-']'
-case class LITERALSTRING() extends TokenType { override def toString() : String = "LITERALSTRING" }
-
-//LITERALNUMBER: '['0-9]*'
-case class LITERALNUMBER() extends TokenType { override def toString() : String = "LITERALNUMBER" }
-
-//SUM: '+'
-case class SUM() extends TokenType { override def toString() : String = "SUM" }
-
-//SUB: '-'
-case class SUB() extends TokenType { override def toString() : String = "SUB" }
-
-//MUL: '*'
-case class MUL() extends TokenType { override def toString() : String = "MUL" }
-
-//DIV: '/'
-case class DIV() extends TokenType { override def toString() : String = "DIV" }
-
-//PRINTLN: 'println'
-case class PRINTLN() extends TokenType { override def toString() : String = "PRINTLN" }
-
-//LEFTPARENTHESIS: '('
-case class LEFTPARENTHESIS() extends TokenType { override def toString() : String = "LEFTPARENTHESIS" }
-
-//RIGHTPARENTHESIS: ')'
-case class RIGHTPARENTHESIS() extends TokenType { override def toString() : String = "RIGHTPARENTHESIS" }
-//  expr   : term ((PLUS | MINUS) term)*
-//  term   : factor ((MUL | DIV) factor)*
-//  factor : INTEGER | LPAREN expr RPAREN
-sealed trait  AST
-case class Addition(left: AST, right: AST) extends AST
-case class Subtraction(left: AST, right: AST) extends AST
-case class Multiply(left: AST, right: AST) extends AST
-case class Divide(left: AST, right: AST) extends AST
-case class Equal(left: AST, right: AST) extends AST
-case class Variable(value: String) extends AST
-case class Constant(value: Double) extends AST
-case class Assignation(left: AST, right: AST) extends AST
-
-
-class Parser() {
-  //
-
-  private var currentToken: Token = null
-  private val nextTokens = new scala.collection.mutable.Queue()
-
-
-  def error(msg: String) = {
-    throw new Exception(msg)
+def toMutable(queue: immutable.Queue[Token]): mutable.Queue[Token] = {
+  val empty = mutable.Queue.empty[Token]
+  var tmp: immutable.Queue[Token] = queue
+  while(tmp.nonEmpty) {
+    val (token, nextQueue) = tmp.dequeue
+    empty.enqueue(token)
+    tmp = nextQueue
   }
+  empty
+}
 
-    def eat(currentToken: TokenType, expected: TokenType) = {
-      if (currentToken != expected)  throw new Exception("Expected " + expected + " but found " + currentToken)
+//trait StatementParser {
+//  def canParse(queue: mutable.Queue[Token]): Boolean
+//  def parse(queue: mutable.Queue[Token]): AST
+//}
 
-    }
-  def moveForward(token: Token) = currentToken = {
-    if (nextTokens.isEmpty) token
-    else nextTokens.dequeue
-  }
-
-  def eat(t: Token) = {
-    if(t == currentToken) moveForward(t)
-    else error("Expected " + t + " but found " + currentToken)
-  }
-
-
-
-
+//trait StatementParser {
+//  def parse(queue: mutable.Queue[Token]): Option[AST]
+//}
 //
-//    def nextToken: Token = {
-//      if (unparsedTokens.isEmpty) {
-//        if (tokens.isEmpty) null
-//        else tokens.head
-//      } else unparsedTokens.dequeue
-//    }
-// 2 + 2
-// token 2, token +, token 2
-//currentToken = 2  list = token +, token 2
-// head = +  |   currentToken = 2    |  rest = token 2
+//object DeclarationParser extends StatementParser {
+//
+//  override def parse(queue: mutable.Queue[Token]): Option[AST] = {
+//    if(canParse(queue)) {
+//      // parse
+//    } else None
+//  }
+//
+//  private def canParse(queue: mutable.Queue[Token]): Boolean = {
+//    queue.headOption.exists(token => token.tokenType == DECLARATION())
+//  }
+//}
+//
+class Parser() {
 
-  def parse(tokens: List[Token]): AST = {
-    if(tokens.isEmpty) error("Empty input")
-    return parse(tokens, null)
-  }
-  def parse(tokens: List[Token], ast: AST): AST = {
-    if(tokens.isEmpty) return ast
-    currentToken = tokens.head
-    return parse(tokens.tail, parseExpression(tokens.tail, ast))
-  }
+  private var unparsedTokens = new scala.collection.mutable.Queue[Token]()
 
-  def parseExpression(tokens: List[Token], ast: AST): AST = {
-        tokens match {
-          case head :: rest => head.tokenType match {
-            case LITERALNUMBER() => parseLiteral(head, ast)
-            case LITERALSTRING() => parseLiteral(head, ast)
-            case EQUAL() => parseAssignation(rest, ast)
-            case SUM() => parseBinary(rest, ast)
-            case SUB() => parseBinary(rest, ast)
-//            case MUL() => parseBinary(rest, ast
-//            case DIV() => parseBinary(rest, ast)
-            case _ => parseExpression(rest, ast)
+  def error(msg: String): Nothing =
+    throw new Exception(msg)
 
-          }
-            case _ => error("wrong operator " )
-          }
-
-
-  }
-  def parseBinary(tail: List[Token], ast: AST): AST ={
-    if(currentToken == null) error("Invalid first argument")
-    return new Addition(parseExpression(tail, ast), parseExpression(tail, ast))
-
+  def parseTokens(tokens: List[Token]): List[AST] = {
+    if (tokens.isEmpty) return Nil
+    unparsedTokens.enqueueAll(tokens)
+    var parseTreesList = List(startParsing(unparsedTokens))
+    while(tokensAreLeft(unparsedTokens)) parseTreesList = parseTreesList ++ List(startParsing(unparsedTokens))
+    parseTreesList
   }
 
-  def parseAssignation(value: List[Token], ast: AST): AST = {
-    if(currentToken.tokenType != (LITERALNUMBER)) error("No variable to assign") //or LiteralString
-    return new Assignation(ast, parse(value, null))
-  }
+  private def tokensAreLeft(unparsedTokens: mutable.Queue[Token]): Boolean = unparsedTokens.nonEmpty
 
-  def parseLiteral(token: Token, ast: AST): AST = {
-    token.tokenType match {
-        case LITERALNUMBER() => Constant(token.value.toDouble)
-        case LITERALSTRING() => Variable(token.value)
-        case _ => error("wrong operator " + token)
+  private def isSemiColon(token: Token): Boolean = token.tokenType.equals(SEMICOLON())
+
+  private def startParsing(unparsedTokens: mutable.Queue[Token]): AST = {
+    checkForSemiColon(unparsedTokens) {
+      unparsedTokens.front.tokenType match {
+        case DECLARATION() => parseDeclaration(unparsedTokens)
+        case IDENTIFIER() => AssignationNode(Variable(unparsedTokens.front.value), parseAssignmentExpression())
+        case PRINTLN() => parsePrint(unparsedTokens)
+        case _ => error(s"Expected literal, variable or 'let' but found ${unparsedTokens.dequeue().tokenType}")
       }
+    }
+  }
 
+  private def parsePrint(unparsedTokens: mutable.Queue[Token]): AST = {
+    unparsedTokens.dequeue()
+    if (!isLeftParen(unparsedTokens)) error("Expected '(' after print")
+    val result = PrintNode(parseExpression(Option.empty, unparsedTokens))
+    result
+  }
+
+  private def parseDeclaration(unparsedTokens: scala.collection.mutable.Queue[Token]): AST = {
+    checkIfUnparsedTokensEmpty("variable name")
+
+    unparsedTokens.dequeue()
+    unparsedTokens.front.tokenType match {
+      case IDENTIFIER() =>
+        DeclarationAssignationNode(Variable(unparsedTokens.front.value), parseVariableType(), parseAssignmentExpression())
+      case _ => error("Declaration must be followed by a variable")
+    }
+  }
+
+  private def checkForSemiColon(unparsedTokens: mutable.Queue[Token])(func: => AST): AST = {
+    val result = func
+    unparsedTokens.headOption match {
+      case Some(token) if isSemiColon(token) =>
+        unparsedTokens.dequeue()
+        result
+      case Some(_) => error(s"Line should end with semicolon")
+      case None => error(s"Line should end with semicolon")
+    }
+  }
+
+  private def parseAssignmentExpression(): AST = {
+    validateCurrentToken(unparsedTokens, EQUAL(), "=")
+    parseExpression(Option.empty[AST], unparsedTokens)
+
+  }
+
+  /*TODO:
+     1. Instead of mutating the collection, next call to method could pass "tail" as parameter
+   */
+  @tailrec
+  private def parseExpression(expressionAST: Option[AST], tokensToParse: scala.collection.mutable.Queue[Token]): AST = {
+
+    if (tokensToParse.isEmpty) return expressionAST.get
+    tokensToParse.front.tokenType match {
+      case LITERALNUMBER() => parseExpression(parseLiteral(tokensToParse, LITERALNUMBER()), tokensToParse)
+      case LITERALSTRING() => parseExpression(parseLiteral(tokensToParse, LITERALSTRING()), tokensToParse)
+      case SUM() => parseExpression(parseLowPriorityBinaryOperator(expressionAST, PlusBinaryOperator(), tokensToParse), tokensToParse)
+      case SUB() => parseExpression(parseLowPriorityBinaryOperator(expressionAST, MinusBinaryOperator(), tokensToParse), tokensToParse)
+      case MUL() => parseExpression(parseHighPriorityBinaryOperator(expressionAST, MultiplyBinaryOperator(), tokensToParse), tokensToParse)
+      case DIV() => parseExpression(parseHighPriorityBinaryOperator(expressionAST, DivideBinaryOperator(), tokensToParse), tokensToParse)
+      case IDENTIFIER() => parseExpression(Option.apply(Variable(tokensToParse.dequeue().value)), tokensToParse)
+      case LEFTPARENTHESIS() => parseExpression(parseLeftParenthesis(), tokensToParse)
+      case SEMICOLON() => expressionAST.get
+      case _ => error(s"")
+    }
+  }
+
+  private def parseLiteral(tokensToParse: mutable.Queue[Token], tokenType: TokenType): Option[AST] = {
+    if(tokensToParse.tail.nonEmpty && (List(IDENTIFIER(), LITERALNUMBER(), LITERALSTRING(), LEFTPARENTHESIS()) contains tokensToParse.tail.head.tokenType))error(s"Literal cannot be followed by: ${tokensToParse.dequeue().tokenType}")
+
+    tokenType match {
+      case LITERALNUMBER() => Option(ConstantNumb(tokensToParse.dequeue().value.toDouble))
+      case LITERALSTRING() => Option(ConstantString(tokensToParse.dequeue().value.replace("\"", "")))
+      case _ => error(s"Expected literal but found ${tokensToParse.dequeue().tokenType}")
     }
 
+  }
+
+  private def parseLowPriorityBinaryOperator(maybeAst: Option[AST], operator: BinaryOperator, tokensToParse: scala.collection.mutable.Queue[Token]): Option[AST] = {
+    tokensToParse.dequeue()
+    if (maybeAst.isEmpty || tokensToParse.isEmpty) error("Expected expression")
+
+    Option.apply(BinaryOperation(maybeAst.get, operator, parseExpression(Option.empty[AST], tokensToParse)))
+
+  }
+
+  private def parseLeftParenthesis(): Option[AST] = {
+    unparsedTokens.dequeue()
+    if (unparsedTokens.isEmpty) error("Expected expression")
+
+    val newQueue = scala.collection.mutable.Queue[Token]()
+    //    if(!unparsedTokens.contains(_: Token)(_ == RIGHTPARENTHESIS())) error("Expected ')'")
+
+    var buildingAST = Option.empty[AST]
+    while (unparsedTokens.nonEmpty && !unparsedTokens.front.tokenType.equals(RIGHTPARENTHESIS())) {
+      if (unparsedTokens.front.tokenType == LEFTPARENTHESIS()) buildingAST = parseLeftParenthesis()
+      newQueue.enqueue(unparsedTokens.dequeue())
+    }
+
+    unparsedTokens.dequeue()
+    Option.apply(parseExpression(buildingAST, newQueue))
+
+  }
 
 
-//  def parseExpression(tokens: List[Token], ast: AST): AST = {
-//  val node = parseTerm(tokens)
-//    tokens match {
-//      case head :: rest => head.tokenType match {
-//        case SUM()  => Addition(node, parseTerm(rest))
-//        case SUB() =>  Subtraction(node, parseTerm(rest))
-//        case EQUAL() => Equal(node, parseTerm(rest))
-//        case _ => error("wrong operator " + head)
-//      }
-//      case _ => node
-//    }
-//  }
 
-//  def parseTerm(tokens: List[Token]): AST = {
-//    val node = parseFactor(tokens)
-//    tokens match {
-//      case head :: rest => head.tokenType match {
-//        case MUL() =>  Multiply(node, parseFactor(rest))
-//        case DIV() =>  Divide(node, parseFactor(rest))
-////        case
-//        case _ => error("wrong operator " + head)
-//      }
-//      case _ => node
-//    }
-//  }
+  private def parseHighPriorityBinaryOperator(maybeAst: Option[AST], operator: BinaryOperator, tokensToParse: scala.collection.mutable.Queue[Token]): Option[AST] = {
+    tokensToParse.dequeue()
+    if (maybeAst.isEmpty || tokensToParse.isEmpty) error("Expected expression")
+
+    if (tokensToParse.front.tokenType.equals(LEFTPARENTHESIS())) {
+      return Option.apply(BinaryOperation(maybeAst.get, operator, parseExpression(Option.empty[AST], tokensToParse)))
+    }
+
+    val newQueue = scala.collection.mutable.Queue[Token]()
+    newQueue.enqueue(tokensToParse.dequeue())
+    Option.apply(BinaryOperation(maybeAst.get, operator, parseExpression(Option.empty[AST], newQueue)))
+
+  }
 
 
-//  def parseFactor(tokens: List[Token]): AST = {
-//    tokens match {
-//      case head :: rest => head match {
-//          case TokenType.LITERALNUMBER() => Constant(head.value.toDouble)
-//          case TokenType.LITERALSTRING() => Variable(head.value)
-//          case TokenType.LEFTPARENTHESIS() => {
-//            val node = parseExpression(rest)
-//            eat(tokens.head.tokenType, RIGHTPARENTHESIS())
-//            node
-//          }
-//          case _ => error("wrong factor " + head)
-//      }
-////      case Nil => error("wrong factor " + tokens)
-//    }
-//  }
+  private def parseVariableType(): VariableTypeNode = {
+    validateCurrentToken(unparsedTokens, COLON(), ":")
 
+    unparsedTokens.front.tokenType match {
+      case STRINGTYPE() => VariableTypeNode(StringVariableType())
+      case NUMBERTYPE() => VariableTypeNode(NumberVariableType())
+      case _ => error("Expected variable type but found " + unparsedTokens.dequeue().tokenType)
+    }
+  }
 
+  /*TODO: Method shouldnt mutate list. Return new one*/
+  private def validateCurrentToken(tokens: scala.collection.mutable.Queue[Token], expectedTokenType: TokenType, symbol: String) = {
+    tokens.dequeue()
+    if (tokens.nonEmpty && tokens.front.tokenType != expectedTokenType) error(s"Expected $symbol but found ${tokens.front.tokenType}")
+    tokens.dequeue()
+  }
+
+  private def checkIfUnparsedTokensEmpty(expected: String): Unit =
+    if (unparsedTokens.isEmpty) error(s"Expected $expected but nothing was found")
 
 
 }
-
-
