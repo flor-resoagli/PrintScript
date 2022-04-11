@@ -1,4 +1,3 @@
-import scala.collection.mutable.ListBuffer
 
 trait LexerBuilder {
   def build(): Lexer

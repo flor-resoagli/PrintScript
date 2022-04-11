@@ -3,6 +3,8 @@ import org.junit.jupiter.api.{Test}
 import org.junit.Assert.*
 
 class LexerTesting extends TestCase {
+  val lexerBuilder = new DefaultLexerBuilder()
+  val lexer = lexerBuilder.build()
 
   @Test
   def test01_endOfWordMethod() = {
@@ -58,8 +60,6 @@ class LexerTesting extends TestCase {
 
   @Test
   def test07_tokenize() = {
-    val lexerBuilder = new DefaultLexerBuilder()
-    val lexer = lexerBuilder.build()
     val input = "let variable = 1"
     val tokens = lexer.tokenize(input)
     assertTrue(tokens.size == 4)
@@ -71,8 +71,6 @@ class LexerTesting extends TestCase {
 
   @Test
   def test08_tokenize2() = {
-    val lexerBuilder = new DefaultLexerBuilder()
-    val lexer = lexerBuilder.build()
     val input =
       "let variable: number = 1.5; \n let otherVariable2:string = \'a string with both numers 44 and punctuation **\';"
     val tokens = lexer.tokenize(input)
@@ -100,8 +98,6 @@ class LexerTesting extends TestCase {
 
   @Test
   def test09_tokenize3() = {
-    val lexerBuilder = new DefaultLexerBuilder()
-    val lexer = lexerBuilder.build()
     val input = "let variable: number = 1.5; \n let variable1: number = 1;"
     val tokens = lexer.tokenize(input)
     assert(tokens.size == 14)
@@ -123,6 +119,30 @@ class LexerTesting extends TestCase {
     assert(tokens(12).tokenType == LITERALNUMBER.apply())
     assert(tokens(12).value == "1")
     assert(tokens(13).tokenType == SEMICOLON.apply())
+  }
+
+  @Test
+  def test10_tokenizeWithSpacesAtTheEndShouldSucceed() = {
+    val input = "let variable = 1;  "
+    val tokens = lexer.tokenize(input)
+    assertTrue(tokens.size == 5)
+    assertTrue(tokens(0).tokenType == DECLARATION.apply())
+    assertTrue(tokens(1).tokenType == IDENTIFIER.apply())
+    assertTrue(tokens(2).tokenType == EQUAL.apply())
+    assertTrue(tokens(3).tokenType == LITERALNUMBER.apply())
+    assertTrue(tokens(4).tokenType == SEMICOLON.apply())
+  }
+
+  @Test
+  def test11_tokenizeWithNewLinesAtTheEndShouldSucceed() = {
+    val input = "let variable = 1; \n"
+    val tokens = lexer.tokenize(input)
+    assertTrue(tokens.size == 5)
+    assertTrue(tokens(0).tokenType == DECLARATION.apply())
+    assertTrue(tokens(1).tokenType == IDENTIFIER.apply())
+    assertTrue(tokens(2).tokenType == EQUAL.apply())
+    assertTrue(tokens(3).tokenType == LITERALNUMBER.apply())
+    assertTrue(tokens(4).tokenType == SEMICOLON.apply())
   }
 
 }
