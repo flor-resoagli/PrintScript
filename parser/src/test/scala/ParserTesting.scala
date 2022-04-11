@@ -556,7 +556,8 @@ class ParserTesting {
 
     val result = parser.parseTokens(tokens)
 
-    assertEquals(expected,result)
+    assertEquals(expected, result)
+  }
 
   @Test
   def test42_consecutiveValidExpressionsShouldFail(): Unit = {
@@ -679,4 +680,3 @@ class ParserTesting {
 
 
 
-}
