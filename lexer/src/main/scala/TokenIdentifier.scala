@@ -112,7 +112,7 @@ case class LiteralStringCondition() extends TokenCondition {
 
   override def endOfWord(position: Int, input: String): Int = {
     var eow = position + 1
-    while (input(eow) != '"' && input(eow) != '\'') eow = eow + 1
+    while (input(eow) != '\"' && input(eow) != '\'') eow = eow + 1
     eow
   }
 

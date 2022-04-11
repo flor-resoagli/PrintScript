@@ -7,8 +7,9 @@ class Lexer(tokenConditions: List[TokenCondition]) {
   private case class LexicalState(column: Int, line: Int)
 
   def tokenize(input: String): List[Token] = {
-    lexStates = lexicalStateDeclaration(input)
-    buildTokens(input)
+    val trimmedInput = input.trim
+    lexStates = lexicalStateDeclaration(trimmedInput)
+    buildTokens(trimmedInput)
   }
 
   private def lexicalStateDeclaration(input: String): List[LexicalState] = {
@@ -34,7 +35,7 @@ class Lexer(tokenConditions: List[TokenCondition]) {
 
     while (position < input.length) {
       var found = false
-      while (input(position) == ' ' || input(position) == '\n') {
+      while ((input(position) == ' ' || input(position) == '\n') && position < input.length-1) {
         position += 1
       }
       for (tokenCondition <- tokenConditions) {
