@@ -6,24 +6,32 @@
 //literal: String | Number
 
 //trait or enum?
-sealed trait VariableType
-case class StringVariableType() extends VariableType
-case class NumberVariableType() extends VariableType
+sealed trait VariableType {
+  def isInstance(a: Any): Boolean
+}
 
-sealed class BinaryOperator
+case class StringVariableType() extends VariableType {
+  def isInstance(a: Any): Boolean = a.isInstanceOf[String]
+}
+case class NumberVariableType() extends VariableType {
+  def isInstance(a: Any): Boolean = a.isInstanceOf[Double]
+}
+
+sealed class BinaryOperator { }
 case class PlusBinaryOperator() extends BinaryOperator
 case class MinusBinaryOperator() extends BinaryOperator
 case class MultiplyBinaryOperator() extends BinaryOperator
 case class DivideBinaryOperator() extends BinaryOperator
 
+sealed trait ConstantAST(value: Any) extends AST 
 
 sealed trait  AST
 //case class DeclarationAssignationNode(variableTypeNode: VariableTypeNode, assignationNode: AssignationNode) extends AST
 case class DeclarationAssignationNode(variable: Variable, variableTypeNode: VariableTypeNode, value: AST) extends AST
 case class AssignationNode(variable: Variable, value: AST) extends AST
 case class Variable(value: String) extends AST
-case class ConstantNumb(value: Double) extends AST
-case class ConstantString(value: String) extends AST
+case class ConstantNumb(value: Double) extends ConstantAST(value)
+case class ConstantString(value: String) extends ConstantAST(value)
 case class BinaryOperation(left: AST, operator: BinaryOperator, right: AST) extends AST
 case class VariableTypeNode(value: VariableType) extends AST
 case class PrintNode(value: AST) extends AST

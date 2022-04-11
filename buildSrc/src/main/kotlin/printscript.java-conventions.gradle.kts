@@ -1,11 +1,7 @@
 plugins {
     java
-    // Apply the scala Plugin to add support for Scala.
     scala
-
-    // Apply the application plugin to add support for building a CLI application in Java.
     application
-
 }
 
 repositories {
@@ -38,6 +34,7 @@ dependencies {
     implementation("com.github.eugenesy.scapegoat:gradle-scapegoat-plugin:0.2.0")
     // coverage
     implementation("org.scoverage:gradle-scoverage:7.0.0")
+
 }
 
 tasks.test {
