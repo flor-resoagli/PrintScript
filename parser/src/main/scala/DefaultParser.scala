@@ -2,6 +2,11 @@ import scala.annotation.tailrec
 import scala.collection.{immutable, mutable}
 import scala.collection.mutable.Queue
 
+trait Parser {
+  def parseTokens(tokens: List[Token]): List[AST]
+}
+
+
 def isLeftParen(unparsedTokens: mutable.Queue[Token]): Boolean = {
   unparsedTokens.isEmpty || unparsedTokens.front.tokenType ==  LEFTPARENTHESIS()
 }
@@ -21,31 +26,10 @@ def toMutable(queue: immutable.Queue[Token]): mutable.Queue[Token] = {
   empty
 }
 
-//trait StatementParser {
-//  def canParse(queue: mutable.Queue[Token]): Boolean
-//  def parse(queue: mutable.Queue[Token]): AST
-//}
 
-//trait StatementParser {
-//  def parse(queue: mutable.Queue[Token]): Option[AST]
-//}
-//
-//object DeclarationParser extends StatementParser {
-//
-//  override def parse(queue: mutable.Queue[Token]): Option[AST] = {
-//    if(canParse(queue)) {
-//      // parse
-//    } else None
-//  }
-//
-//  private def canParse(queue: mutable.Queue[Token]): Boolean = {
-//    queue.headOption.exists(token => token.tokenType == DECLARATION())
-//  }
-//}
-//
 class DefaultParser() extends Parser {
 
-  private var unparsedTokens = new scala.collection.mutable.Queue[Token]()
+  private val unparsedTokens = new scala.collection.mutable.Queue[Token]()
 
   def error(msg: String): Nothing =
     throw new Exception(msg)
@@ -53,12 +37,12 @@ class DefaultParser() extends Parser {
   def parseTokens(tokens: List[Token]): List[AST] = {
     if (tokens.isEmpty) return Nil
     unparsedTokens.enqueueAll(tokens)
-    val parseTreesList = List(startParsing(unparsedTokens))
-    if (tokensAreLeft(unparsedTokens)) parseTreesList
-    else parseTreesList ++ List(startParsing(unparsedTokens))
+    var parseTreesList = List(startParsing(unparsedTokens))
+    while(tokensAreLeft(unparsedTokens)) parseTreesList = parseTreesList ++ List(startParsing(unparsedTokens))
+    parseTreesList
   }
 
-  private def tokensAreLeft(unparsedTokens: mutable.Queue[Token]): Boolean = unparsedTokens.isEmpty
+  private def tokensAreLeft(unparsedTokens: mutable.Queue[Token]): Boolean = unparsedTokens.nonEmpty
 
   private def isSemiColon(token: Token): Boolean = token.tokenType.equals(SEMICOLON())
 

@@ -1,13 +1,49 @@
-class Compiler(parser: Parser, lexer: Lexer, interpreter: InterpreterDummy)  {
+import scala.collection.mutable.Map
+
+class Compiler(parser: Parser, lexer: Lexer, interpreter: Interpreter)  {
+type InterprterResult = (List[String], Map[String, (VariableType, Any)])
 
   def compile(input: String, runningMode: RunningMode): Unit = {
     val tokens = lexer.tokenize(input)
-    val ast = try parser.parseTokens(tokens) catch {
-      case e: Exception => throw new Exception("Parsing error: " + e.getMessage)
+    val ast: List[AST] = tryToParse(runningMode, tokens, "parsing", parser.parseTokens(tokens)) match {
+      case Some(result) => result
+      case None => return
     }
-    val interpretedInput = interpreter.interpret(ast)
+    val interpretedInput: InterprterResult = tryToInterpret(runningMode, "interpreting", interpreter.interpret(ast)) match {
+      case Some(result) => result
+      case None => return
+    } 
+
     runningMode.run(interpretedInput)
   }
+  
+  private def tryToParse(runningMode: RunningMode, tokens: List[Token], stage: String, parsingfunc: => List[AST]): Option[List[AST]] = {
+    printStage(stage)
+    val ast: List[AST] = try parsingfunc catch {
+      case e: Exception => {
+        runningMode.runError(List(e.getMessage), stage)
+        return None
+      }
+    }
+    Some(ast)
+  }
+
+  private def printStage(stage: String) = {
+    println(s"Stage: $stage ...")
+  }
+
+  private def tryToInterpret(runningMode: RunningMode, stage: String, func: => InterprterResult): Option[InterprterResult] = {
+    printStage(stage)
+    val ast: InterprterResult = try func catch {
+      case e: Exception => {
+        runningMode.runError(List(e.getMessage), stage)
+        return None
+      }
+    }
+    Some(ast)
+  }
+
+
 
 }
 
@@ -18,7 +54,7 @@ trait CompilerBuilder() {
 class DefaultCompilerBuilder extends CompilerBuilder {
 
   def build(): Compiler = {
-    new Compiler(DefaultParser(), DefaultLexerBuilder().build(), DefaultInterpreterBuilderDummy().build())
+    new Compiler(DefaultParser(), DefaultLexerBuilder().build(), DefaultInterpreterBuilder().build())
   }
 
 

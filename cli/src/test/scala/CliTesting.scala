@@ -6,15 +6,25 @@ class CliTesting {
 
   
   @Test
-  def test_executionModeShouldSucceed(): Unit = {
+  def test01_executionModeShouldSucceed(): Unit = {
      val runnedFile = new Cli().run(new FileReader("src/test/resources/test.txt"), "1.0", new ExecutionMode())
      assertTrue(true)
+  }
+  @Test
+  def test02_executionModeShouldSucceed(): Unit = {
+    val runnedFile = new Cli().run(new FileReader("src/test/resources/test.txt"), "1.0", new ExecutionMode())
+    assertTrue(true)
   }
 
 
   @Test
   def test_validationModeShouldSucceed(): Unit = {
-    val runnedFile = new Cli().run(new FileReader("src/test/resources/test.txt"), "1.0", new ExecutionMode())
+    val runnedFile = new Cli().run(new FileReader("src/test/resources/printString.txt"), "1.0", new ExecutionMode())
+    assertTrue(true)
+  }
+  @Test
+  def test02_validationModeShouldSucceed(): Unit = {
+    val runnedFile = new Cli().run(new FileReader("src/test/resources/printString.txt"), "1.0", new ValidationMode())
     assertTrue(true)
   }
 

@@ -1,5 +1,5 @@
 import junit.framework.TestCase
-import org.junit.jupiter.api.{Test}
+import org.junit.jupiter.api.Test
 import org.junit.Assert.*
 
 class ParserTesting {
@@ -527,7 +527,36 @@ class ParserTesting {
     assertEquals(expected,result)
   }
 
+  @Test
+  def test58_parsingForLinesLinesShouldSucceed(): Unit = {
+    val input = "let variable: number = 1.5; \n let variable1 : string = \"s\"; \n let variable1 : string = \"s\"; \n let variable1 : string = \"s\";";
 
+    val tokens = lexer.tokenize(input)
+
+    val expected = List(
+      DeclarationAssignationNode(Variable("variable"),VariableTypeNode(NumberVariableType()),ConstantNumb(1.5)),
+      DeclarationAssignationNode(Variable("variable1"),VariableTypeNode(StringVariableType()),ConstantString("s")),
+      DeclarationAssignationNode(Variable("variable1"),VariableTypeNode(StringVariableType()),ConstantString("s")),
+      DeclarationAssignationNode(Variable("variable1"),VariableTypeNode(StringVariableType()),ConstantString("s"))
+    )
+
+    val result = parser.parseTokens(tokens)
+
+    assertEquals(expected,result)
+
+  }
+
+  @Test
+  def test59_printingVariableShouldSucceed(): Unit = {
+    val input = "println(variable);";
+
+    val tokens = lexer.tokenize(input)
+
+    val expected = List(PrintNode(Variable("variable")))
+
+    val result = parser.parseTokens(tokens)
+
+    assertEquals(expected,result)
 
   @Test
   def test42_consecutiveValidExpressionsShouldFail(): Unit = {
@@ -645,6 +674,7 @@ class ParserTesting {
   }
 
 
+  }
 
 
 
