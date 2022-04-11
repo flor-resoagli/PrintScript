@@ -53,12 +53,12 @@ class Parser() {
   def parseTokens(tokens: List[Token]): List[AST] = {
     if (tokens.isEmpty) return Nil
     unparsedTokens.enqueueAll(tokens)
-    val parseTreesList = List(startParsing(unparsedTokens))
-    if (tokensAreLeft(unparsedTokens)) parseTreesList
-    else parseTreesList ++ List(startParsing(unparsedTokens))
+    var parseTreesList = List(startParsing(unparsedTokens))
+    while(tokensAreLeft(unparsedTokens)) parseTreesList = parseTreesList ++ List(startParsing(unparsedTokens))
+    parseTreesList
   }
 
-  private def tokensAreLeft(unparsedTokens: mutable.Queue[Token]): Boolean = unparsedTokens.isEmpty
+  private def tokensAreLeft(unparsedTokens: mutable.Queue[Token]): Boolean = unparsedTokens.nonEmpty
 
   private def isSemiColon(token: Token): Boolean = token.tokenType.equals(SEMICOLON())
 
