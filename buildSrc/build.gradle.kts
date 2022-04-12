@@ -1,3 +1,4 @@
+
 plugins {
     `kotlin-dsl`
 
@@ -11,6 +12,14 @@ plugins {
 
 repositories {
     gradlePluginPortal()
+
+    maven {
+        credentials {
+            username = "flor-resoagli"
+            password = "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"
+        }
+        url = uri("https://maven.pkg.github.com/flor-resoagli/PrintScript")
+    }
 }
 
 //publishing {
@@ -41,6 +50,24 @@ tasks.publish {
     group = "publishing"
     description = "Publish the project to GitHub"
     dependsOn(":gpr")
+}
+
+publishing {
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/flor-resoagli/PrintScript")
+            credentials {
+                username = "flor-resoagli"
+                password = "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"
+            }
+        }
+    }
+    publications {
+        register<MavenPublication>("gpr") {
+            from(components["java"])
+        }
+    }
 }
 
 tasks.test {

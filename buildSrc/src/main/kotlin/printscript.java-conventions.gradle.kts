@@ -10,6 +10,15 @@ repositories {
 
     gradlePluginPortal()
 
+    maven {
+        credentials {
+            username = "flor-resoagli"
+            password = "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"
+        }
+        url = uri("https://maven.pkg.github.com/flor-resoagli/PrintScript")
+    }
+
+
 }
 
 publishing {
@@ -18,8 +27,8 @@ publishing {
             name = "GitHubPackages"
             url = uri("https://maven.pkg.github.com/flor-resoagli/PrintScript")
             credentials {
-                username = project.findProperty("USERNAME") as String?
-                password = project.findProperty("TOKEN") as String?
+                username = "flor-resoagli"
+                password = "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"
             }
         }
     }
