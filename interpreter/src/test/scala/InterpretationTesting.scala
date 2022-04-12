@@ -7,7 +7,7 @@ import scala.collection.mutable
 class InterpretationTesting {
 
   def lexer = new DefaultLexerBuilder().build()
-  def parser = new Parser()
+  def parser = new DefaultParser()
   def interpreter = new DefaultInterpreterBuilder().build()
 
   @Test
