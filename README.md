@@ -10,8 +10,8 @@
 
 2.0 Elegir el tipo de input ingresando 
 * 1 -> File path, proveemos dos file path de prueba 
-** "cli/src/main/resources/incorrectFile.txt"
-** cli/src/main/resources/correctFile.txt
+  * "cli/src/main/resources/incorrectFile.txt"
+  * cli/src/main/resources/correctFile.txt
 
 * 2 -> Consola
 
