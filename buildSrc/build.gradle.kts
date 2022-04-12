@@ -13,23 +13,23 @@ repositories {
     gradlePluginPortal()
 }
 
-//publishing {
-//    repositories {
-//        maven {
-//            name = "GitHubPackages"
-//            url = uri("https://maven.pkg.github.com/flor-resoagli/PrintScript")
-//            credentials {
-//                username = project.findProperty("USERNAME") as String?
-//                password = project.findProperty("TOKEN") as String?
-//            }
-//        }
-//    }
-//    publications {
-//        register<MavenPublication>("gpr") {
-//            from(components["java"])
-//        }
-//    }
-//}
+publishing {
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/flor-resoagli/PrintScript")
+            credentials {
+                username = project.findProperty("USERNAME") as String?
+                password = project.findProperty("TOKEN") as String?
+            }
+        }
+    }
+    publications {
+        register<MavenPublication>("gpr") {
+            from(components["java"])
+        }
+    }
+}
 
 tasks {
     reportScoverage
