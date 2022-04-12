@@ -42,4 +42,4 @@ jobs:
         arguments: publish
       env:
         USERNAME: 'flor-resoagli'
-        TOKEN: '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'
+        TOKEN: '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'
