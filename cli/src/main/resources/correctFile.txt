@@ -1,0 +1,6 @@
+let variable: string = "This is a variable of type String";
+variable = "Reassigned value of variable";
+let numberVariable: number = 10;
+numberVariable = 20;
+println("Hello");
+println(variable);

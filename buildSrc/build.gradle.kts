@@ -7,29 +7,30 @@ plugins {
     id("jacoco")
 
     `maven-publish`
+    application
 }
 
 repositories {
     gradlePluginPortal()
 }
 
-publishing {
-    repositories {
-        maven {
-            name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/flor-resoagli/PrintScript")
-            credentials {
-                username = project.findProperty("USERNAME") as String?
-                password = project.findProperty("TOKEN") as String?
-            }
-        }
-    }
-    publications {
-        register<MavenPublication>("gpr") {
-            from(components["java"])
-        }
-    }
-}
+//publishing {
+//    repositories {
+//        maven {
+//            name = "GitHubPackages"
+//            url = uri("https://maven.pkg.github.com/flor-resoagli/PrintScript")
+//            credentials {
+//                username = System.getenv("USERNAME")
+//                password = System.getenv("TOKEN")
+//            }
+//        }
+//    }
+//    publications {
+//        register<MavenPublication>("gpr") {
+//            from(components["java"])
+//        }
+//    }
+//}
 
 tasks {
     reportScoverage
@@ -57,6 +58,10 @@ tasks.jacocoTestReport {
 //        csv.required.set(false)
         html.outputLocation.set(layout.buildDirectory.dir("jacocoHtml"))
     }
+}
+
+application {
+    mainClass.set("cli.main.scala.Main")
 }
 
 
