@@ -41,5 +41,5 @@ jobs:
       with:
         arguments: publish
       env:
-        USERNAME: 'flor-resoagli'
-        TOKEN: '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'
+        USERNAME: project.findProperty("USERNAME") as String?
+        TOKEN: project.findProperty("TOKEN") as String?
