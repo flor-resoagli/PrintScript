@@ -10,10 +10,12 @@ type PrintResult = List[String]
 
 class ExecutionMode extends RunningMode{
   override def run(input: InterpreterResult): Unit = {
-    println(s"Finished process: ${input._1.mkString("")}")
+    println(s"Finished process")
+    if(input._1.nonEmpty) println(s"Result: \n${input._1.mkString("\n")}")
   }
   override def runError(message: List[String], stage: String): Unit = {
-    println(s"Error: $message")
+    println("Failed to execute")
+//    println(s"Error: ${message.mkString("")}")
   }
 }
 

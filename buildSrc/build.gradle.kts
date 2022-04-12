@@ -8,6 +8,7 @@ plugins {
     id("jacoco")
 
     `maven-publish`
+    application
 }
 
 repositories {
@@ -28,8 +29,8 @@ repositories {
 //            name = "GitHubPackages"
 //            url = uri("https://maven.pkg.github.com/flor-resoagli/PrintScript")
 //            credentials {
-//                username = project.findProperty("USERNAME") as String?
-//                password = project.findProperty("TOKEN") as String?
+//                username = System.getenv("USERNAME")
+//                password = System.getenv("TOKEN")
 //            }
 //        }
 //    }
@@ -84,6 +85,10 @@ tasks.jacocoTestReport {
 //        csv.required.set(false)
         html.outputLocation.set(layout.buildDirectory.dir("jacocoHtml"))
     }
+}
+
+application {
+    mainClass.set("cli.main.scala.Main")
 }
 
 

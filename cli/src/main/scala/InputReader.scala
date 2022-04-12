@@ -21,3 +21,7 @@ class FileReader(src: String) extends InputReader  {
    }
 
 }
+
+class ConsoleReader extends InputReader {
+  override def read(): String = scala.io.StdIn.readLine()
+}

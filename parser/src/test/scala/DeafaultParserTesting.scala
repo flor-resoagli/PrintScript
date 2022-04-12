@@ -2,7 +2,7 @@ import junit.framework.TestCase
 import org.junit.jupiter.api.Test
 import org.junit.Assert.*
 
-class ParserTesting {
+class DeafaultParserTesting {
 
   def lexer: Lexer = new DefaultLexerBuilder().build()
   def parser: DefaultParser = new DefaultParser()
@@ -504,7 +504,8 @@ class ParserTesting {
 
   @Test
   def test41_multipleLinesShouldFailIfFirstOneMissingFinalSemicoloShouldSucceed = {
-    val input = "let variable: number = 1.5 \n let variable1 : string = \"s\";";
+    val input = "let variable: number = 1.5 \n " +
+      "let variable1 : string = \"s\";"
 
     val tokens = lexer.tokenize(input)
 

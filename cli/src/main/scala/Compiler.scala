@@ -5,21 +5,21 @@ type InterprterResult = (List[String], Map[String, (VariableType, Any)])
 
   def compile(input: String, runningMode: RunningMode): Unit = {
     val tokens = lexer.tokenize(input)
-    val ast: List[AST] = tryToParse(runningMode, tokens, "parsing", parser.parseTokens(tokens)) match {
+    val ast: List[AST] = tryToParse(runningMode, tokens, "parsing") match {
       case Some(result) => result
       case None => return
     }
     val interpretedInput: InterprterResult = tryToInterpret(runningMode, "interpreting", interpreter.interpret(ast)) match {
       case Some(result) => result
       case None => return
-    } 
+    }
 
     runningMode.run(interpretedInput)
   }
   
-  private def tryToParse(runningMode: RunningMode, tokens: List[Token], stage: String, parsingfunc: => List[AST]): Option[List[AST]] = {
+  private def tryToParse(runningMode: RunningMode, tokens: List[Token], stage: String): Option[List[AST]] = {
     printStage(stage)
-    val ast: List[AST] = try parsingfunc catch {
+    val ast: List[AST] = try  parser.parseTokens(tokens) catch {
       case e: Exception => {
         runningMode.runError(List(e.getMessage), stage)
         return None
