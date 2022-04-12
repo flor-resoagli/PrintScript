@@ -27,6 +27,14 @@ def toMutable(queue: immutable.Queue[Token]): mutable.Queue[Token] = {
 }
 
 
+def notRightParenthesis(unparsedTokens: mutable.Queue[Token]): Boolean = {
+  unparsedTokens.nonEmpty && !unparsedTokens.front.tokenType.equals(RIGHTPARENTHESIS())
+}
+
+def encounteredLeftParenthesis(unparsedTokens: mutable.Queue[Token]): Boolean = {
+  unparsedTokens.front.tokenType == LEFTPARENTHESIS()
+}
+
 class DefaultParser() extends Parser {
 
   private val unparsedTokens = new scala.collection.mutable.Queue[Token]()
@@ -50,11 +58,15 @@ class DefaultParser() extends Parser {
     checkForSemiColon(unparsedTokens) {
       unparsedTokens.front.tokenType match {
         case DECLARATION() => parseDeclaration(unparsedTokens)
-        case IDENTIFIER() => AssignationNode(Variable(unparsedTokens.front.value), parseAssignmentExpression())
+        case IDENTIFIER() => parseIdentifier(unparsedTokens)
         case PRINTLN() => parsePrint(unparsedTokens)
         case _ => error(s"Expected literal, variable or 'let' but found ${unparsedTokens.dequeue().tokenType}")
       }
     }
+  }
+
+  private def parseIdentifier(unparsedTokens: mutable.Queue[Token]) = {
+    AssignationNode(Variable(unparsedTokens.front.value), parseAssignmentExpression())
   }
 
   private def parsePrint(unparsedTokens: mutable.Queue[Token]): AST = {
@@ -66,7 +78,6 @@ class DefaultParser() extends Parser {
 
   private def parseDeclaration(unparsedTokens: scala.collection.mutable.Queue[Token]): AST = {
     checkIfUnparsedTokensEmpty("variable name")
-
     unparsedTokens.dequeue()
     unparsedTokens.front.tokenType match {
       case IDENTIFIER() =>
@@ -92,23 +103,25 @@ class DefaultParser() extends Parser {
 
   }
 
-  /*TODO:
-     1. Instead of mutating the collection, next call to method could pass "tail" as parameter
-   */
+
   @tailrec
   private def parseExpression(expressionAST: Option[AST], tokensToParse: scala.collection.mutable.Queue[Token]): AST = {
-
     if (tokensToParse.isEmpty) return expressionAST.get
+    if isSemiColon(tokensToParse.front) then return  expressionAST.get
+    parseExpression (acceptedExpressionsParse(expressionAST, tokensToParse) , tokensToParse)
+
+  }
+
+  private def acceptedExpressionsParse(expressionAST: Option[AST], tokensToParse: mutable.Queue[Token]) = {
     tokensToParse.front.tokenType match {
-      case LITERALNUMBER() => parseExpression(parseLiteral(tokensToParse, LITERALNUMBER()), tokensToParse)
-      case LITERALSTRING() => parseExpression(parseLiteral(tokensToParse, LITERALSTRING()), tokensToParse)
-      case SUM() => parseExpression(parseLowPriorityBinaryOperator(expressionAST, PlusBinaryOperator(), tokensToParse), tokensToParse)
-      case SUB() => parseExpression(parseLowPriorityBinaryOperator(expressionAST, MinusBinaryOperator(), tokensToParse), tokensToParse)
-      case MUL() => parseExpression(parseHighPriorityBinaryOperator(expressionAST, MultiplyBinaryOperator(), tokensToParse), tokensToParse)
-      case DIV() => parseExpression(parseHighPriorityBinaryOperator(expressionAST, DivideBinaryOperator(), tokensToParse), tokensToParse)
-      case IDENTIFIER() => parseExpression(Option.apply(Variable(tokensToParse.dequeue().value)), tokensToParse)
-      case LEFTPARENTHESIS() => parseExpression(parseLeftParenthesis(), tokensToParse)
-      case SEMICOLON() => expressionAST.get
+      case LITERALNUMBER() => parseLiteral(tokensToParse, LITERALNUMBER())
+      case LITERALSTRING() => parseLiteral(tokensToParse, LITERALSTRING())
+      case SUM() => parseLowPriorityBinaryOperator(expressionAST, PlusBinaryOperator(), tokensToParse)
+      case SUB() => parseLowPriorityBinaryOperator(expressionAST, MinusBinaryOperator(), tokensToParse)
+      case MUL() => parseHighPriorityBinaryOperator(expressionAST, MultiplyBinaryOperator(), tokensToParse)
+      case DIV() => parseHighPriorityBinaryOperator(expressionAST, DivideBinaryOperator(), tokensToParse)
+      case IDENTIFIER() => Option.apply(Variable(tokensToParse.dequeue().value))
+      case LEFTPARENTHESIS() => parseLeftParenthesis()
       case _ => error(s"")
     }
   }
@@ -137,11 +150,10 @@ class DefaultParser() extends Parser {
     if (unparsedTokens.isEmpty) error("Expected expression")
 
     val newQueue = scala.collection.mutable.Queue[Token]()
-    //    if(!unparsedTokens.contains(_: Token)(_ == RIGHTPARENTHESIS())) error("Expected ')'")
 
     var buildingAST = Option.empty[AST]
-    while (unparsedTokens.nonEmpty && !unparsedTokens.front.tokenType.equals(RIGHTPARENTHESIS())) {
-      if (unparsedTokens.front.tokenType == LEFTPARENTHESIS()) buildingAST = parseLeftParenthesis()
+    while (notRightParenthesis(unparsedTokens)) {
+      if (isLeftParen(unparsedTokens)) buildingAST = parseLeftParenthesis()
       newQueue.enqueue(unparsedTokens.dequeue())
     }
 
@@ -156,9 +168,8 @@ class DefaultParser() extends Parser {
     tokensToParse.dequeue()
     if (maybeAst.isEmpty || tokensToParse.isEmpty) error("Expected expression")
 
-    if (tokensToParse.front.tokenType.equals(LEFTPARENTHESIS())) {
+    if (isLeftParen(tokensToParse))
       return Option.apply(BinaryOperation(maybeAst.get, operator, parseExpression(Option.empty[AST], tokensToParse)))
-    }
 
     val newQueue = scala.collection.mutable.Queue[Token]()
     newQueue.enqueue(tokensToParse.dequeue())

@@ -26,7 +26,7 @@ case class DivideBinaryOperator() extends BinaryOperator
 sealed trait ConstantAST(value: Any) extends AST 
 
 sealed trait  AST
-//case class DeclarationAssignationNode(variableTypeNode: VariableTypeNode, assignationNode: AssignationNode) extends AST
+//case class NewDeclarationAssignationNode(variableTypeNode: VariableTypeNode, assignationNode: AssignationNode) extends AST
 case class DeclarationAssignationNode(variable: Variable, variableTypeNode: VariableTypeNode, value: AST) extends AST
 case class AssignationNode(variable: Variable, value: AST) extends AST
 case class Variable(value: String) extends AST
@@ -35,4 +35,5 @@ case class ConstantString(value: String) extends ConstantAST(value)
 case class BinaryOperation(left: AST, operator: BinaryOperator, right: AST) extends AST
 case class VariableTypeNode(value: VariableType) extends AST
 case class PrintNode(value: AST) extends AST
+case class EmptyNode() extends AST
 
