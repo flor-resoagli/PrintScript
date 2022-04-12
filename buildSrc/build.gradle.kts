@@ -34,6 +34,7 @@ publishing {
 tasks {
     reportScoverage
     jacocoTestReport
+    publish
 }
 
 tasks.test {
