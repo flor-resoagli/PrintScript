@@ -25,3 +25,14 @@ class FileReader(src: String) extends InputReader  {
 class ConsoleReader extends InputReader {
   override def read(): String = scala.io.StdIn.readLine()
 }
+
+class FileReaderAdapter(file: File) extends InputReader {
+  override def read(): String = file.read()
+
+  implicit class RichFile(file: File) {
+    def read(): String =
+      val source = Source.fromFile(file)
+      try source.getLines.mkString("\n") finally source.close()
+
+  }
+}
