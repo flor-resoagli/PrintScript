@@ -16,6 +16,12 @@ case class StringVariableType() extends VariableType {
 case class NumberVariableType() extends VariableType {
   def isInstance(a: Any): Boolean = a.isInstanceOf[Double]
 }
+case class BooleanVariableType(boolean: Boolean) extends VariableType {
+  def isTrue(): Boolean = boolean
+  def isInstance(a: Any): Boolean = a.isInstanceOf[Boolean]
+}
+
+
 
 sealed class BinaryOperator { }
 case class PlusBinaryOperator() extends BinaryOperator
@@ -25,7 +31,7 @@ case class DivideBinaryOperator() extends BinaryOperator
 
 sealed trait ConstantAST(value: Any) extends AST 
 
-sealed trait  AST
+sealed trait  AST {def isEmpty(): Boolean = { this.isInstanceOf[EmptyNode]}}
 //case class NewDeclarationAssignationNode(variableTypeNode: VariableTypeNode, assignationNode: AssignationNode) extends AST
 case class DeclarationAssignationNode(variable: Variable, variableTypeNode: VariableTypeNode, value: AST) extends AST
 case class AssignationNode(variable: Variable, value: AST) extends AST
@@ -36,4 +42,5 @@ case class BinaryOperation(left: AST, operator: BinaryOperator, right: AST) exte
 case class VariableTypeNode(value: VariableType) extends AST
 case class PrintNode(value: AST) extends AST
 case class EmptyNode() extends AST
+case class ifNode(cond: BooleanVariableType, leftTrue: List[AST], rightFalse: List[AST])
 
