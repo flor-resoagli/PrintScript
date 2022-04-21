@@ -1,3 +1,5 @@
+package org.florresoagli.printscript
+
 class Cli() {
 
   def run(inputReader: InputReader, version: String, mode: RunningMode): Any =

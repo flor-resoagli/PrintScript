@@ -1,6 +1,8 @@
+package org.florresoagli.printscript
+
 import scala.collection.mutable
-import scala.collection.mutable.Map
-import scala.collection.mutable.ListBuffer
+import scala.collection.mutable.{ListBuffer, Map}
+import interpreter._
 
 
 class Interpreter(val variableTypes: List[VariableType], val st: Map[String, (VariableType, Any)]) {

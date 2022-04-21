@@ -1,3 +1,7 @@
+package org.florresoagli.printscript
+
+import org.florresoagli.printscript.VariableType
+
 import scala.collection.mutable.Map
 
 trait RunningMode{

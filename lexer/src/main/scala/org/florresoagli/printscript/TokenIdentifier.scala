@@ -1,3 +1,5 @@
+package org.florresoagli.printscript
+
 trait TokenCondition {
   def apply(position: Int, input: String): Option[(Int, TokenType)]
 

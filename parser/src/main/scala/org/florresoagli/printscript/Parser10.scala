@@ -1,6 +1,6 @@
 import scala.annotation.tailrec
-import scala.collection.{immutable, mutable}
 import scala.collection.mutable.Queue
+import scala.collection.{immutable, mutable}
 
 trait Parser {
   def parseTokens(tokens: List[Token]): List[AST]
@@ -27,6 +27,7 @@ def toMutable(queue: immutable.Queue[Token]): mutable.Queue[Token] = {
 }
 
 
+class Parser10() extends Parser {
 def notRightParenthesis(unparsedTokens: mutable.Queue[Token]): Boolean = {
   unparsedTokens.nonEmpty && !unparsedTokens.front.tokenType.equals(RIGHTPARENTHESIS())
 }
@@ -150,6 +151,7 @@ class DefaultParser() extends Parser {
     if (unparsedTokens.isEmpty) error("Expected expression")
 
     val newQueue = scala.collection.mutable.Queue[Token]()
+    //    if(!unparsedTokens.contains(_: lexer.Token)(_ == lexer.RIGHTPARENTHESIS())) error("Expected ')'")
 
     var buildingAST = Option.empty[AST]
     while (notRightParenthesis(unparsedTokens)) {

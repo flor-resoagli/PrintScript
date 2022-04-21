@@ -12,4 +12,5 @@ plugins {
 }
 
 // Projects have the 'com.example' group by convention
-group = "com.example"
+group = "org.florresoagli"
+version = "0.0.3"

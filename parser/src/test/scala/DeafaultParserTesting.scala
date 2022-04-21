@@ -1,11 +1,13 @@
 import junit.framework.TestCase
+import org.florresoagli.printscript.{AssignationNode, BinaryOperation, ConstantNumb, ConstantString, DeclarationAssignationNode, DefaultLexerBuilder, Parser10, DivideBinaryOperator, Lexer, MinusBinaryOperator, MultiplyBinaryOperator, NumberVariableType, PlusBinaryOperator, PrintNode, StringVariableType, Variable, VariableTypeNode}
 import org.junit.jupiter.api.Test
 import org.junit.Assert.*
 
-class DeafaultParserTesting {
+
+class ParserTesting {
 
   def lexer: Lexer = new DefaultLexerBuilder().build()
-  def parser: DefaultParser = new DefaultParser()
+  def parser: Parser10 = new Parser10()
 
 
 

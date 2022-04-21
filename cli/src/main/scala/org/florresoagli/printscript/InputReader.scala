@@ -1,3 +1,5 @@
+package org.florresoagli.printscript
+
 import java.io.File
 import scala.collection.Iterator
 import scala.io.Source

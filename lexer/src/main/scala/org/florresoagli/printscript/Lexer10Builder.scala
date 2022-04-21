@@ -1,9 +1,10 @@
+package org.florresoagli.printscript
 
 trait LexerBuilder {
   def build(): Lexer
 }
 
-class DefaultLexerBuilder extends LexerBuilder {
+class Lexer10Builder extends LexerBuilder {
 
   def build(): Lexer = {
     val tokenConditions = List[TokenCondition](

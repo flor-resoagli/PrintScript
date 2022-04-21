@@ -1,3 +1,5 @@
+package org.florresoagli.printscript
+
 class DefaultInterpreterBuilderDummy {
   
   def build(): InterpreterDummy = {

@@ -1,5 +1,6 @@
 import junit.framework.TestCase
-import org.junit.jupiter.api.{Test}
+import org.florresoagli.printscript.{COLON, ColonCondition, DECLARATION, DeclarationCondition, DefaultLexerBuilder, EQUAL, IDENTIFIER, IdentifierCondition, LITERALNUMBER, LITERALSTRING, LiteralNumberCondition, LiteralStringCondition, NUMBERTYPE, SEMICOLON, STRINGTYPE}
+import org.junit.jupiter.api.Test
 import org.junit.Assert.*
 
 class LexerTesting extends TestCase {

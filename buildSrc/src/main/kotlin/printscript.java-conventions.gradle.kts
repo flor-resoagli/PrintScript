@@ -13,7 +13,7 @@ repositories {
     maven {
         credentials {
             username = "flor-resoagli"
-            password = "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"
+            password = "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"
         }
         url = uri("https://maven.pkg.github.com/flor-resoagli/PrintScript")
     }
@@ -28,7 +28,7 @@ publishing {
             url = uri("https://maven.pkg.github.com/flor-resoagli/PrintScript")
             credentials {
                 username = "flor-resoagli"
-                password = "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"
+                password = "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"
             }
         }
     }
