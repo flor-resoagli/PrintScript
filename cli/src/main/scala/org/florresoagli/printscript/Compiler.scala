@@ -1,3 +1,7 @@
+package org.florresoagli.printscript
+
+import org.florresoagli.printscript.{AST, Interpreter, Lexer, Parser, Token, VariableType, RunningMode}
+
 import scala.collection.mutable.Map
 
 class Compiler(parser: Parser, lexer: Lexer, interpreter: Interpreter)  {
@@ -54,7 +58,7 @@ trait CompilerBuilder() {
 class DefaultCompilerBuilder extends CompilerBuilder {
 
   def build(): Compiler = {
-    new Compiler(DefaultParser(), DefaultLexerBuilder().build(), DefaultInterpreterBuilder().build())
+    new Compiler(Parser10(), Lexer10Builder().build(), Interpreter10Builder().build())
   }
 
 

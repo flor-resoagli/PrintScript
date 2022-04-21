@@ -1,4 +1,5 @@
 import junit.framework.TestCase
+import org.florresoagli.printscript.{Cli, ExecutionMode, FileReader, ValidationMode}
 import org.junit.jupiter.api.Test
 import org.junit.Assert.*
 

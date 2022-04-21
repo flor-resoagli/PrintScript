@@ -1,41 +1,42 @@
+package org.florresoagli.printscript
 import scala.annotation.tailrec
-import scala.collection.{immutable, mutable}
 import scala.collection.mutable.Queue
+import scala.collection.{immutable, mutable}
 
 trait Parser {
   def parseTokens(tokens: List[Token]): List[AST]
 }
 
 
-def isLeftParen(unparsedTokens: mutable.Queue[Token]): Boolean = {
-  unparsedTokens.isEmpty || unparsedTokens.front.tokenType ==  LEFTPARENTHESIS()
-}
 
-def toImmutable(queue: mutable.Queue[Token]): immutable.Queue[Token] = {
-  immutable.Queue(queue.toList:_*)
-}
+class Parser10() extends Parser {
 
-def toMutable(queue: immutable.Queue[Token]): mutable.Queue[Token] = {
-  val empty = mutable.Queue.empty[Token]
-  var tmp: immutable.Queue[Token] = queue
-  while(tmp.nonEmpty) {
-    val (token, nextQueue) = tmp.dequeue
-    empty.enqueue(token)
-    tmp = nextQueue
+  def isLeftParen(unparsedTokens: mutable.Queue[Token]): Boolean = {
+    unparsedTokens.isEmpty || unparsedTokens.front.tokenType == LEFTPARENTHESIS()
   }
-  empty
-}
 
+  def toImmutable(queue: mutable.Queue[Token]): immutable.Queue[Token] = {
+    immutable.Queue(queue.toList: _*)
+  }
 
-def notRightParenthesis(unparsedTokens: mutable.Queue[Token]): Boolean = {
-  unparsedTokens.nonEmpty && !unparsedTokens.front.tokenType.equals(RIGHTPARENTHESIS())
-}
+  def toMutable(queue: immutable.Queue[Token]): mutable.Queue[Token] = {
+    val empty = mutable.Queue.empty[Token]
+    var tmp: immutable.Queue[Token] = queue
+    while (tmp.nonEmpty) {
+      val (token, nextQueue) = tmp.dequeue
+      empty.enqueue(token)
+      tmp = nextQueue
+    }
+    empty
+  }
 
-def encounteredLeftParenthesis(unparsedTokens: mutable.Queue[Token]): Boolean = {
-  unparsedTokens.front.tokenType == LEFTPARENTHESIS()
-}
+  def notRightParenthesis(unparsedTokens: mutable.Queue[Token]): Boolean = {
+    unparsedTokens.nonEmpty && !unparsedTokens.front.tokenType.equals(RIGHTPARENTHESIS())
+  }
 
-class DefaultParser() extends Parser {
+  def encounteredLeftParenthesis(unparsedTokens: mutable.Queue[Token]): Boolean = {
+    unparsedTokens.front.tokenType == LEFTPARENTHESIS()
+  }
 
   private val unparsedTokens = new scala.collection.mutable.Queue[Token]()
 
@@ -46,7 +47,7 @@ class DefaultParser() extends Parser {
     if (tokens.isEmpty) return Nil
     unparsedTokens.enqueueAll(tokens)
     var parseTreesList = List(startParsing(unparsedTokens))
-    while(tokensAreLeft(unparsedTokens)) parseTreesList = parseTreesList ++ List(startParsing(unparsedTokens))
+    while (tokensAreLeft(unparsedTokens)) parseTreesList = parseTreesList ++ List(startParsing(unparsedTokens))
     parseTreesList
   }
 
@@ -107,8 +108,8 @@ class DefaultParser() extends Parser {
   @tailrec
   private def parseExpression(expressionAST: Option[AST], tokensToParse: scala.collection.mutable.Queue[Token]): AST = {
     if (tokensToParse.isEmpty) return expressionAST.get
-    if isSemiColon(tokensToParse.front) then return  expressionAST.get
-    parseExpression (acceptedExpressionsParse(expressionAST, tokensToParse) , tokensToParse)
+    if isSemiColon(tokensToParse.front) then return expressionAST.get
+    parseExpression(acceptedExpressionsParse(expressionAST, tokensToParse), tokensToParse)
 
   }
 
@@ -127,7 +128,7 @@ class DefaultParser() extends Parser {
   }
 
   private def parseLiteral(tokensToParse: mutable.Queue[Token], tokenType: TokenType): Option[AST] = {
-    if(tokensToParse.tail.nonEmpty && (List(IDENTIFIER(), LITERALNUMBER(), LITERALSTRING(), LEFTPARENTHESIS()) contains tokensToParse.tail.head.tokenType))error(s"Literal cannot be followed by: ${tokensToParse.dequeue().tokenType}")
+    if (tokensToParse.tail.nonEmpty && (List(IDENTIFIER(), LITERALNUMBER(), LITERALSTRING(), LEFTPARENTHESIS()) contains tokensToParse.tail.head.tokenType)) error(s"Literal cannot be followed by: ${tokensToParse.dequeue().tokenType}")
 
     tokenType match {
       case LITERALNUMBER() => Option(ConstantNumb(tokensToParse.dequeue().value.toDouble))
@@ -150,6 +151,7 @@ class DefaultParser() extends Parser {
     if (unparsedTokens.isEmpty) error("Expected expression")
 
     val newQueue = scala.collection.mutable.Queue[Token]()
+    //    if(!unparsedTokens.contains(_: lexer.Token)(_ == lexer.RIGHTPARENTHESIS())) error("Expected ')'")
 
     var buildingAST = Option.empty[AST]
     while (notRightParenthesis(unparsedTokens)) {
@@ -161,7 +163,6 @@ class DefaultParser() extends Parser {
     Option.apply(parseExpression(buildingAST, newQueue))
 
   }
-
 
 
   private def parseHighPriorityBinaryOperator(maybeAst: Option[AST], operator: BinaryOperator, tokensToParse: scala.collection.mutable.Queue[Token]): Option[AST] = {
@@ -198,5 +199,5 @@ class DefaultParser() extends Parser {
   private def checkIfUnparsedTokensEmpty(expected: String): Unit =
     if (unparsedTokens.isEmpty) error(s"Expected $expected but nothing was found")
 
-
 }
+

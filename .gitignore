@@ -1,4 +1,4 @@
 .gradle
-gradle.properties
+buildSrc/gradle.properties
 .idea
 build

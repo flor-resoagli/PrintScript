@@ -1,10 +1,12 @@
+package org.florresoagli.printscript
+
 import scala.collection.mutable.Map
 
 trait InterpreterBuilder {
   def build(): Interpreter
 }
 
-class DefaultInterpreterBuilder extends InterpreterBuilder {
+class Interpreter10Builder extends InterpreterBuilder {
   def build(): Interpreter = {
     val variableTypes: List[VariableType] = List[VariableType](
       new NumberVariableType(),

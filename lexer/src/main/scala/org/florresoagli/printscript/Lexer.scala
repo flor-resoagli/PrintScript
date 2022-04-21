@@ -1,3 +1,5 @@
+package org.florresoagli.printscript
+
 import scala.collection.mutable.ListBuffer
 
 class Lexer(tokenConditions: List[TokenCondition]) {

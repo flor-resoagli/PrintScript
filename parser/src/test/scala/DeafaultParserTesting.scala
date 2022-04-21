@@ -1,11 +1,13 @@
+package org.florresoagli.printscript
 import junit.framework.TestCase
 import org.junit.jupiter.api.Test
 import org.junit.Assert.*
 
-class DeafaultParserTesting {
 
-  def lexer: Lexer = new DefaultLexerBuilder().build()
-  def parser: DefaultParser = new DefaultParser()
+class ParserTesting {
+
+  def lexer: Lexer = new Lexer10Builder().build()
+  def parser: Parser10 = new Parser10()
 
 
 

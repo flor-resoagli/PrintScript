@@ -1,9 +1,26 @@
 import junit.framework.TestCase
-import org.junit.jupiter.api.{Test}
+import org.florresoagli.printscript.{
+  COLON,
+  ColonCondition,
+  DECLARATION,
+  DeclarationCondition,
+  EQUAL,
+  IDENTIFIER,
+  IdentifierCondition,
+  LITERALNUMBER,
+  LITERALSTRING,
+  Lexer10Builder,
+  LiteralNumberCondition,
+  LiteralStringCondition,
+  NUMBERTYPE,
+  SEMICOLON,
+  STRINGTYPE
+}
+import org.junit.jupiter.api.Test
 import org.junit.Assert.*
 
-class LexerTesting extends TestCase {
-  val lexerBuilder = new DefaultLexerBuilder()
+class Lexer10Testing extends TestCase {
+  val lexerBuilder = new Lexer10Builder()
   val lexer = lexerBuilder.build()
 
   @Test

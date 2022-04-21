@@ -1,3 +1,5 @@
+package org.florresoagli.printscript
+
 trait TokenCondition {
   def apply(position: Int, input: String): Option[(Int, TokenType)]
 
@@ -58,10 +60,27 @@ case class RightParenthesisCondition() extends TokenCondition {
     if (input(position) == ')') Some(position, RIGHTPARENTHESIS.apply()) else None
 }
 
+case class LeftBraceCondition() extends TokenCondition {
+  def apply(position: Int, input: String): Option[(Int, TokenType)] =
+    if (input(position) == '{') Some(position, LEFTBRACE.apply()) else None
+}
+
+case class RightBraceCondition() extends TokenCondition {
+  def apply(position: Int, input: String): Option[(Int, TokenType)] =
+    if (input(position) == '}') Some(position, RIGHTBRACE.apply()) else None
+}
+
 case class DeclarationCondition() extends TokenCondition {
   def apply(position: Int, input: String): Option[(Int, TokenType)] = {
     val eow = endOfWord(position, input)
     if (input.substring(position, eow + 1) == "let") Some(eow, DECLARATION.apply()) else None
+  }
+}
+
+case class ConstantCondition() extends TokenCondition {
+  def apply(position: Int, input: String): Option[(Int, TokenType)] = {
+    val eow = endOfWord(position, input)
+    if (input.substring(position, eow + 1) == "const") Some(eow, CONSTANT.apply()) else None
   }
 }
 
@@ -79,10 +98,38 @@ case class StringTypeCondition() extends TokenCondition {
   }
 }
 
+case class BooleanTypeCondition() extends TokenCondition {
+  def apply(position: Int, input: String): Option[(Int, TokenType)] = {
+    val eow = endOfWord(position, input)
+    if (input.substring(position, eow + 1) == "boolean") Some(eow, BOOLEANTYPE.apply()) else None
+  }
+}
+
+case class IfCondition() extends TokenCondition {
+  def apply(position: Int, input: String): Option[(Int, TokenType)] = {
+    val eow = endOfWord(position, input)
+    if (input.substring(position, eow + 1) == "if") Some(eow, IF.apply()) else None
+  }
+}
+
+case class ElseCondition() extends TokenCondition {
+  def apply(position: Int, input: String): Option[(Int, TokenType)] = {
+    val eow = endOfWord(position, input)
+    if (input.substring(position, eow + 1) == "else") Some(eow, ELSE.apply()) else None
+  }
+}
+
 case class PrintlnCondition() extends TokenCondition {
   def apply(position: Int, input: String): Option[(Int, TokenType)] = {
     val eow = endOfWord(position, input)
     if (input.substring(position, eow + 1) == "println") Some(eow, PRINTLN.apply()) else None
+  }
+}
+
+case class ReadInputCondition() extends TokenCondition {
+  def apply(position: Int, input: String): Option[(Int, TokenType)] = {
+    val eow = endOfWord(position, input)
+    if (input.substring(position, eow + 1) == "readInput") Some(eow, READINPUT.apply()) else None
   }
 }
 
@@ -91,6 +138,17 @@ case class IdentifierCondition() extends TokenCondition {
     val eow = endOfWord(position, input)
     if (input.substring(position, eow + 1).matches("[a-zA-Z_][a-zA-Z0-9_]*"))
       Some(eow, IDENTIFIER.apply())
+    else None
+  }
+}
+
+case class LiteralBooleanCondition() extends TokenCondition {
+  def apply(position: Int, input: String): Option[(Int, TokenType)] = {
+    val eow = endOfWord(position, input)
+    if (
+      input.substring(position, eow + 1) == "true" || input.substring(position, eow + 1) == "false"
+    )
+      Some(eow, LITERALBOOLEAN.apply())
     else None
   }
 }

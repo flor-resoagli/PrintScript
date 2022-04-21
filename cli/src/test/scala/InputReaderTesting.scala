@@ -1,5 +1,6 @@
 import junit.framework.TestCase
-import org.junit.jupiter.api.{Test}
+import org.florresoagli.printscript.FileReader
+import org.junit.jupiter.api.Test
 import org.junit.Assert.*
 
 class InputReaderTesting {
