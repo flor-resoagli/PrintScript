@@ -1,10 +1,10 @@
 import junit.framework.TestCase
-import org.florresoagli.printscript.{COLON, ColonCondition, DECLARATION, DeclarationCondition, DefaultLexerBuilder, EQUAL, IDENTIFIER, IdentifierCondition, LITERALNUMBER, LITERALSTRING, LiteralNumberCondition, LiteralStringCondition, NUMBERTYPE, SEMICOLON, STRINGTYPE}
+import org.florresoagli.printscript.{COLON, ColonCondition, DECLARATION, DeclarationCondition, EQUAL, IDENTIFIER, IdentifierCondition, LITERALNUMBER, LITERALSTRING, Lexer10Builder, LiteralNumberCondition, LiteralStringCondition, NUMBERTYPE, SEMICOLON, STRINGTYPE}
 import org.junit.jupiter.api.Test
 import org.junit.Assert.*
 
 class LexerTesting extends TestCase {
-  val lexerBuilder = new DefaultLexerBuilder()
+  val lexerBuilder = new Lexer10Builder()
   val lexer = lexerBuilder.build()
 
   @Test

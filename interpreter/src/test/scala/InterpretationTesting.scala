@@ -1,5 +1,5 @@
 import junit.framework.TestCase
-import org.florresoagli.printscript.{Interpreter10Builder, DefaultLexerBuilder, Parser10, NumberVariableType, StringVariableType}
+import org.florresoagli.printscript.{Interpreter10Builder, Lexer10Builder, NumberVariableType, Parser10, StringVariableType}
 import org.junit.jupiter.api.Test
 import org.junit.Assert.*
 
@@ -7,7 +7,7 @@ import scala.collection.mutable
 
 class InterpretationTesting {
 
-  def lexer = new DefaultLexerBuilder().build()
+  def lexer = new Lexer10Builder().build()
   def parser = new Parser10()
   def interpreter = new Interpreter10Builder().build()
 

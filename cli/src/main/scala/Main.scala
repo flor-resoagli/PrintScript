@@ -1,4 +1,5 @@
 import scala.io.StdIn.readLine
+import org.florresoagli.printscript.{Cli, RunningMode, ValidationMode, ExecutionMode, InputReader, FileReader, ConsoleReader}
 
 object CliRunner extends App {
 
