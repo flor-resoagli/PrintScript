@@ -1,15 +1,14 @@
-package org.florresoagli.printscript
 import scala.annotation.tailrec
 import scala.collection.mutable.Queue
 import scala.collection.{immutable, mutable}
 
-trait Parser {
-  def parseTokens(tokens: List[Token]): List[AST]
-}
+//trait Parser {
+//  def parseTokens(tokens: List[Token]): List[AST]
+//}
 
 
 
-class Parser10() extends Parser {
+class ParserDemo  {
 
   def isLeftParen(unparsedTokens: mutable.Queue[Token]): Boolean = {
     unparsedTokens.isEmpty || unparsedTokens.front.tokenType == LEFTPARENTHESIS()
@@ -58,13 +57,15 @@ class Parser10() extends Parser {
   private def startParsing(unparsedTokens: mutable.Queue[Token]): AST = {
     checkForSemiColon(unparsedTokens) {
       unparsedTokens.front.tokenType match {
-        case DECLARATION() => parseDeclaration(unparsedTokens)
+        case DECLARATION() => parseTypeAndValueAssignation(unparsedTokens, parseVariableType())
         case IDENTIFIER() => parseIdentifier(unparsedTokens)
         case PRINTLN() => parsePrint(unparsedTokens)
+        case IDENTIFIER() => parseTypeAndValueAssignation(unparsedTokens, parseConstantType())
         case _ => error(s"Expected literal, variable or 'let' but found ${unparsedTokens.dequeue().tokenType}")
       }
     }
   }
+
 
   private def parseIdentifier(unparsedTokens: mutable.Queue[Token]) = {
     AssignationNode(Variable(unparsedTokens.front.value), parseAssignmentExpression())
@@ -77,12 +78,12 @@ class Parser10() extends Parser {
     result
   }
 
-  private def parseDeclaration(unparsedTokens: scala.collection.mutable.Queue[Token]): AST = {
+  private def parseTypeAndValueAssignation(unparsedTokens: scala.collection.mutable.Queue[Token], func: => VariableTypeNode): AST = {
     checkIfUnparsedTokensEmpty("variable name")
     unparsedTokens.dequeue()
     unparsedTokens.front.tokenType match {
       case IDENTIFIER() =>
-        DeclarationAssignationNode(Variable(unparsedTokens.front.value), parseVariableType(), parseAssignmentExpression())
+        DeclarationAssignationNode(Variable(unparsedTokens.front.value), func, parseAssignmentExpression())
       case _ => error("Declaration must be followed by a variable")
     }
   }
@@ -185,6 +186,15 @@ class Parser10() extends Parser {
     unparsedTokens.front.tokenType match {
       case STRINGTYPE() => VariableTypeNode(StringVariableType())
       case NUMBERTYPE() => VariableTypeNode(NumberVariableType())
+      case _ => error("Expected variable type but found " + unparsedTokens.dequeue().tokenType)
+    }
+  }
+  private def parseConstantType(): VariableTypeNode = {
+    validateCurrentToken(unparsedTokens, COLON(), ":")
+
+    unparsedTokens.front.tokenType match {
+      case STRINGTYPE() => VariableTypeNode(ConstantStringType())
+      case NUMBERTYPE() => VariableTypeNode(ConstantNumberType())
       case _ => error("Expected variable type but found " + unparsedTokens.dequeue().tokenType)
     }
   }
