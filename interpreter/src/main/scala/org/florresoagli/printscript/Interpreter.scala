@@ -3,8 +3,11 @@ package org.florresoagli.printscript
 import scala.collection.mutable
 import scala.collection.mutable.{ListBuffer, Map}
 
-
-class Interpreter(val variableTypes: List[VariableType], val st: Map[String, (VariableType, Any)]) {
+trait Interpreter(
+                          val variableTypes: List[VariableType],
+                          val st: Map[String, (VariableType, Any)],
+                          val binaryOperations: Map[(BinaryOperator) => Boolean, (Double, Double) => Double],
+                        ) {
 
   var output = new ListBuffer[String]()
   var symbolTable = st
@@ -15,31 +18,35 @@ class Interpreter(val variableTypes: List[VariableType], val st: Map[String, (Va
     (output.toList, symbolTable)
   }
 
-  def initialInterpretation(tree: AST): Unit = {
-    tree match {
-      case DeclarationAssignationNode(variable, variableType, value) => declareAssignVariable(variable, variableType, value)
-      case AssignationNode(variable, value) => assignVariable(variable, value)
-      case PrintNode(value) => printNode(value)
-      case _ => throw new Exception(tree.getClass.getName + " is not a valid start operation")
-    }
+  //FILL IN IN IMPLEMENTATION
+  def initialInterpretation(tree: AST): Unit
+
+  def isExistingVariable(variable: Variable): Boolean = {
+    symbolTable.contains(variable.value)
   }
 
-  def declareAssignVariable(variable: Variable, variableType: VariableTypeNode, value: AST): Unit = {
+  def declareAssignVariable(variable: Variable, variableType: AST, value: AST): Unit = {
 
     if(isExistingVariable(variable)){
       throw new Exception("Can't declare variable because it already exists")
 
     } else {
 
-      symbolTable += (variable.value -> (variableType.value, None))
+      symbolTable += (variable.value -> (getVariableTypeValueFromAST(variableType), null))
       assignVariable(variable, value)
 
     }
   }
 
-  def isExistingVariable(variable: Variable): Boolean = {
-    symbolTable.contains(variable.value)
+  def getVariableTypeValueFromAST(node: AST) : VariableType = {
+    node match {
+      case VariableTypeNode(value) => value
+      case _ => throw new Exception("Can't get variable type from AST")
+    }
   }
+
+  //FILL IN IN IMPLEMENTATION
+  def assignVariable(variable: Variable, value: AST): Unit
 
   def variableTypeMatches(variableType: VariableType, variableValue: Any): VariableType = {
     variableType.isInstance(variableValue) match {
@@ -48,27 +55,8 @@ class Interpreter(val variableTypes: List[VariableType], val st: Map[String, (Va
     }
   }
 
-  def assignVariable(variable: Variable, value: AST): Unit = {
-
-    if(isExistingVariable(variable)){
-      val variableValue = interpretExpression(value)
-      val variableTypeValue = variableTypeMatches(symbolTable(variable.value)._1, variableValue)
-      symbolTable += (variable.value -> (variableTypeValue, variableValue))
-    } else {
-      throw new Exception("Can't assign variable because it doesn't exist")
-    }
-
-  }
-
-  def interpretExpression(expression: AST): Any = {
-    expression match {
-      case c@Variable(_) => variableNode(c)
-      case c@ConstantNumb(_) => constantNumbNode(c)
-      case c@ConstantString(_) => constantStringNode(c)
-      case c@BinaryOperation(_, _, _) => binaryOperationNode(c)
-      case _ => throw new Exception("Can't interpret expression " + expression.getClass.getName)
-    }
-  }
+  //FILL IN IN IMPLEMENTATION
+  def interpretExpression(expression: AST): Any
 
   def variableNode(node:Variable): Any = {
 
@@ -78,10 +66,6 @@ class Interpreter(val variableTypes: List[VariableType], val st: Map[String, (Va
       case None => throw new Exception("Can't use variable " + node.value + " because it doesn't exist")
     }
   }
-
-  def constantNumbNode(node:ConstantNumb): Double = node.value
-
-  def constantStringNode(node:ConstantString): String = node.value
 
   def binaryOperationNode(node:BinaryOperation): Any = {
     val left = interpretExpression(node.left)
@@ -96,22 +80,22 @@ class Interpreter(val variableTypes: List[VariableType], val st: Map[String, (Va
   }
 
   def binaryOperation(left: Double, right: Double, operator: BinaryOperator): Double = {
-    operator match {
-      case PlusBinaryOperator() => left + right
-      case MinusBinaryOperator() => left - right
-      case MultiplyBinaryOperator() => left * right
-      case DivideBinaryOperator() => left / right
-      case _ => throw new Exception("Can't perform operation " + operator + " with " + left + " and " + right)
-    }
+    binaryOperations.foreach(entry => {
+      if(entry._1(operator)){
+        return entry._2(left, right)
+      }
+    })
+    throw new Exception("Can't perform binary operation " + operator + " with " + left + " and " + right)
   }
 
   def concatString(left: String, right: String): String = {
     left + right
   }
 
-  def printNode(node:AST): Unit = {
+  def printNode(node: AST): Unit = {
     val value = interpretExpression(node)
     output.append(value.toString)
   }
 
 }
+

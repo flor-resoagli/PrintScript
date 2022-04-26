@@ -1,31 +1,49 @@
 import junit.framework.TestCase
-import org.florresoagli.printscript.{Interpreter10Builder, Lexer10Builder, NumberVariableType, Parser10, StringVariableType}
 import org.junit.jupiter.api.Test
 import org.junit.Assert.*
+import org.florresoagli.printscript.{
+  AST,
+  ConstantNumb,
+  DeclarationAssignationNode,
+  Interpreter11,
+  InterpreterBuilder,
+  Lexer11Builder,
+  NumberVariableType,
+  Parser11,
+  StringVariableType,
+  BooleanVariableType,
+  Variable,
+  VariableTypeNode
+}
 
 import scala.collection.mutable
 
-class InterpretationTesting {
+class Interpreter11Testing extends TestCase {
 
-  def lexer = new Lexer10Builder().build()
-  def parser = new Parser10()
-  def interpreter = new Interpreter10Builder().build()
+  def lexer = new Lexer11Builder().build()
+
+  def parser = new Parser11().build()
+
+  def interpreter11 = new InterpreterBuilder().build11()
 
   @Test
   def test01_NonExistingVariableAssignationShouldFail(): Unit = {
     val input = "variable = 3;"
     val tokens = lexer.tokenize(input)
     val trees = parser.parseTokens(tokens)
-    assertThrows(classOf[Exception], () => {
-      interpreter.interpret(trees)
-    })
+    assertThrows(
+      classOf[Exception],
+      () => {
+        interpreter11.interpret(trees)
+      }
+    )
   }
 
   @Test
   def test02_shouldSucceedWithEmptyInput(): Unit = {
     val input = ""
     val tokens = lexer.tokenize(input)
-    val result = interpreter.interpret(parser.parseTokens(tokens))
+    val result = interpreter11.interpret(parser.parseTokens(tokens))
     assert(result._2.isEmpty)
     assert(result._1.isEmpty)
   }
@@ -34,7 +52,7 @@ class InterpretationTesting {
   def test03_DeclarationAssignationShouldSucceed(): Unit = {
     val input = "let a: number = 1;"
     val tokens = lexer.tokenize(input)
-    val result = interpreter.interpret(parser.parseTokens(tokens))
+    val result = interpreter11.interpret(parser.parseTokens(tokens))
     val expected = mutable.Map("a" -> (NumberVariableType(), 1.0))
     assertEquals(expected, result._2)
   }
@@ -44,16 +62,22 @@ class InterpretationTesting {
     val input = "let a: string = 1;"
     val tokens = lexer.tokenize(input)
     val trees = parser.parseTokens(tokens)
-    assertThrows(classOf[Exception], () => {
-      interpreter.interpret(trees)
-    })
+    assertThrows(
+      classOf[Exception],
+      () => {
+        interpreter11.interpret(trees)
+      }
+    )
 
     val input2 = "let a: number = \"hola\";"
     val tokens2 = lexer.tokenize(input2)
     val trees2 = parser.parseTokens(tokens2)
-    assertThrows(classOf[Exception], () => {
-      interpreter.interpret(trees2)
-    })
+    assertThrows(
+      classOf[Exception],
+      () => {
+        interpreter11.interpret(trees2)
+      }
+    )
   }
 
   @Test
@@ -61,7 +85,7 @@ class InterpretationTesting {
     val input = "let variable: number = 1+1;"
     val tokens = lexer.tokenize(input)
     val trees = parser.parseTokens(tokens)
-    val result = interpreter.interpret(trees)
+    val result = interpreter11.interpret(trees)
 
     val expected = mutable.Map("variable" -> (NumberVariableType(), 2.0))
 
@@ -73,7 +97,7 @@ class InterpretationTesting {
     val input = "let variable: number = 1-1;"
     val tokens = lexer.tokenize(input)
     val trees = parser.parseTokens(tokens)
-    val result = interpreter.interpret(trees)
+    val result = interpreter11.interpret(trees)
 
     val expected = mutable.Map("variable" -> (NumberVariableType(), 0.0))
 
@@ -85,7 +109,7 @@ class InterpretationTesting {
     val input = "let variable: number = 2*3;"
     val tokens = lexer.tokenize(input)
     val trees = parser.parseTokens(tokens)
-    val result = interpreter.interpret(trees)
+    val result = interpreter11.interpret(trees)
 
     val expected = mutable.Map("variable" -> (NumberVariableType(), 6.0))
 
@@ -97,7 +121,7 @@ class InterpretationTesting {
     val input = "let variable: number = 5/2;"
     val tokens = lexer.tokenize(input)
     val trees = parser.parseTokens(tokens)
-    val result = interpreter.interpret(trees)
+    val result = interpreter11.interpret(trees)
 
     val expected = mutable.Map("variable" -> (NumberVariableType(), 2.5))
 
@@ -109,7 +133,7 @@ class InterpretationTesting {
     val input = "let variable: number = 2+3*2;"
     val tokens = lexer.tokenize(input)
     val trees = parser.parseTokens(tokens)
-    val result = interpreter.interpret(trees)
+    val result = interpreter11.interpret(trees)
 
     val expected = mutable.Map("variable" -> (NumberVariableType(), 8.0))
 
@@ -121,7 +145,7 @@ class InterpretationTesting {
     val input = "let variable: number = 3+1/2;"
     val tokens = lexer.tokenize(input)
     val trees = parser.parseTokens(tokens)
-    val result = interpreter.interpret(trees)
+    val result = interpreter11.interpret(trees)
 
     val expected = mutable.Map("variable" -> (NumberVariableType(), 3.5))
 
@@ -133,7 +157,7 @@ class InterpretationTesting {
     val input = "let variable: number = 3*2+2;"
     val tokens = lexer.tokenize(input)
     val trees = parser.parseTokens(tokens)
-    val result = interpreter.interpret(trees)
+    val result = interpreter11.interpret(trees)
 
     val expected = mutable.Map("variable" -> (NumberVariableType(), 8.0))
 
@@ -145,7 +169,7 @@ class InterpretationTesting {
     val input = "let variable: number = 1/2+2;"
     val tokens = lexer.tokenize(input)
     val trees = parser.parseTokens(tokens)
-    val result = interpreter.interpret(trees)
+    val result = interpreter11.interpret(trees)
 
     val expected = mutable.Map("variable" -> (NumberVariableType(), 2.5))
 
@@ -157,7 +181,7 @@ class InterpretationTesting {
     val input = "let variable: number = (2+1)*2;"
     val tokens = lexer.tokenize(input)
     val trees = parser.parseTokens(tokens)
-    val result = interpreter.interpret(trees)
+    val result = interpreter11.interpret(trees)
 
     val expected = mutable.Map("variable" -> (NumberVariableType(), 6.0))
 
@@ -169,7 +193,7 @@ class InterpretationTesting {
     val input = "let variable: number = 3*4*2;"
     val tokens = lexer.tokenize(input)
     val trees = parser.parseTokens(tokens)
-    val result = interpreter.interpret(trees)
+    val result = interpreter11.interpret(trees)
 
     val expected = mutable.Map("variable" -> (NumberVariableType(), 24.0))
 
@@ -178,11 +202,11 @@ class InterpretationTesting {
   }
 
   @Test
-    def test15_ConsecutiveDivisionShouldSuceed() = {
+  def test15_ConsecutiveDivisionShouldSuceed() = {
     val input = "let variable: number = 4/4/2;"
     val tokens = lexer.tokenize(input)
     val trees = parser.parseTokens(tokens)
-    val result = interpreter.interpret(trees)
+    val result = interpreter11.interpret(trees)
 
     val expected = mutable.Map("variable" -> (NumberVariableType(), 0.5))
 
@@ -194,7 +218,7 @@ class InterpretationTesting {
     val input = "let variable: number = 3*4*2+2;"
     val tokens = lexer.tokenize(input)
     val trees = parser.parseTokens(tokens)
-    val result = interpreter.interpret(trees)
+    val result = interpreter11.interpret(trees)
 
     val expected = mutable.Map("variable" -> (NumberVariableType(), 26.0))
 
@@ -206,7 +230,7 @@ class InterpretationTesting {
     val input = "let variable: number = 2*(2+1);"
     val tokens = lexer.tokenize(input)
     val trees = parser.parseTokens(tokens)
-    val result = interpreter.interpret(trees)
+    val result = interpreter11.interpret(trees)
 
     val expected = mutable.Map("variable" -> (NumberVariableType(), 6.0))
 
@@ -218,9 +242,12 @@ class InterpretationTesting {
     val input = "let variable1: number = 2; let variable2: number = variable1;"
     val tokens = lexer.tokenize(input)
     val trees = parser.parseTokens(tokens)
-    val result = interpreter.interpret(trees)
+    val result = interpreter11.interpret(trees)
 
-    val expected = mutable.Map("variable1" -> (NumberVariableType(), 2.0), "variable2" -> (NumberVariableType(), 2.0))
+    val expected = mutable.Map(
+      "variable1" -> (NumberVariableType(), 2.0),
+      "variable2" -> (NumberVariableType(), 2.0)
+    )
 
     assertEquals(expected, result._2)
   }
@@ -230,9 +257,12 @@ class InterpretationTesting {
     val input = "let variable1: number = 2; let variable2: number = variable1+1;"
     val tokens = lexer.tokenize(input)
     val trees = parser.parseTokens(tokens)
-    val result = interpreter.interpret(trees)
+    val result = interpreter11.interpret(trees)
 
-    val expected = mutable.Map("variable1" -> (NumberVariableType(), 2.0), "variable2" -> (NumberVariableType(), 3.0))
+    val expected = mutable.Map(
+      "variable1" -> (NumberVariableType(), 2.0),
+      "variable2" -> (NumberVariableType(), 3.0)
+    )
 
     assertEquals(expected, result._2)
 
@@ -243,7 +273,7 @@ class InterpretationTesting {
     val input = "println(1);"
     val tokens = lexer.tokenize(input)
     val trees = parser.parseTokens(tokens)
-    val result = interpreter.interpret(trees)
+    val result = interpreter11.interpret(trees)
 
     val expected = List[String]("1.0")
 
@@ -256,7 +286,7 @@ class InterpretationTesting {
     val input = "println(\"1\");"
     val tokens = lexer.tokenize(input)
     val trees = parser.parseTokens(tokens)
-    val result = interpreter.interpret(trees)
+    val result = interpreter11.interpret(trees)
 
     val expected = List[String]("1")
 
@@ -268,7 +298,7 @@ class InterpretationTesting {
     val input = "println(1+2);"
     val tokens = lexer.tokenize(input)
     val trees = parser.parseTokens(tokens)
-    val result = interpreter.interpret(trees)
+    val result = interpreter11.interpret(trees)
 
     val expected = List[String]("3.0")
 
@@ -281,7 +311,7 @@ class InterpretationTesting {
     val input = "println(1*2);"
     val tokens = lexer.tokenize(input)
     val trees = parser.parseTokens(tokens)
-    val result = interpreter.interpret(trees)
+    val result = interpreter11.interpret(trees)
 
     val expected = List[String]("2.0")
 
@@ -294,7 +324,7 @@ class InterpretationTesting {
     val input = "println(1/2);"
     val tokens = lexer.tokenize(input)
     val trees = parser.parseTokens(tokens)
-    val result = interpreter.interpret(trees)
+    val result = interpreter11.interpret(trees)
 
     val expected = List[String]("0.5")
 
@@ -306,7 +336,7 @@ class InterpretationTesting {
     val input = "println(1/2+2);"
     val tokens = lexer.tokenize(input)
     val trees = parser.parseTokens(tokens)
-    val result = interpreter.interpret(trees)
+    val result = interpreter11.interpret(trees)
 
     val expected = List[String]("2.5")
 
@@ -318,7 +348,7 @@ class InterpretationTesting {
     val input = "println(1*2+2);"
     val tokens = lexer.tokenize(input)
     val trees = parser.parseTokens(tokens)
-    val result = interpreter.interpret(trees)
+    val result = interpreter11.interpret(trees)
 
     val expected = List[String]("4.0")
 
@@ -331,9 +361,12 @@ class InterpretationTesting {
     val input = "let variable: number = 1.5; \n let variable1 : string = \"s\";";
     val tokens = lexer.tokenize(input)
     val trees = parser.parseTokens(tokens)
-    val result = interpreter.interpret(trees)
+    val result = interpreter11.interpret(trees)
 
-    val expected = mutable.Map("variable" -> (NumberVariableType(), 1.5), "variable1" -> (StringVariableType(), "s"))
+    val expected = mutable.Map(
+      "variable" -> (NumberVariableType(), 1.5),
+      "variable1" -> (StringVariableType(), "s")
+    )
 
     assertEquals(expected, result._2)
 
@@ -344,7 +377,7 @@ class InterpretationTesting {
     val input = "println((1+2)*3);"
     val tokens = lexer.tokenize(input)
     val trees = parser.parseTokens(tokens)
-    val result = interpreter.interpret(trees)
+    val result = interpreter11.interpret(trees)
 
     val expected = List[String]("9.0")
 
@@ -356,7 +389,7 @@ class InterpretationTesting {
     val input = "let variable: number = 2 / (3+2);"
     val tokens = lexer.tokenize(input)
     val trees = parser.parseTokens(tokens)
-    val result = interpreter.interpret(trees)
+    val result = interpreter11.interpret(trees)
 
     val expected = mutable.Map("variable" -> (NumberVariableType(), 0.4))
 
@@ -369,7 +402,7 @@ class InterpretationTesting {
     val input = "let variable: number = (3+2);"
     val tokens = lexer.tokenize(input)
     val trees = parser.parseTokens(tokens)
-    val result = interpreter.interpret(trees)
+    val result = interpreter11.interpret(trees)
 
     val expected = mutable.Map("variable" -> (NumberVariableType(), 5.0))
 
@@ -382,7 +415,7 @@ class InterpretationTesting {
     val input = "let variable: number = 1.5; \n println(variable);"
     val tokens = lexer.tokenize(input)
     val trees = parser.parseTokens(tokens)
-    val result = interpreter.interpret(trees)
+    val result = interpreter11.interpret(trees)
 
     val expected = List[String]("1.5")
 
@@ -395,7 +428,7 @@ class InterpretationTesting {
     val input = "let variable: number = 1.5; \n variable = 2.5;"
     val tokens = lexer.tokenize(input)
     val trees = parser.parseTokens(tokens)
-    val result = interpreter.interpret(trees)
+    val result = interpreter11.interpret(trees)
 
     val expected = mutable.Map("variable" -> (NumberVariableType(), 2.5))
 
@@ -408,9 +441,13 @@ class InterpretationTesting {
     val input1 = "let a: number = 1; \n let b: number = 2; \n let c: number = a + b; \n println(c);"
     val tokens1 = lexer.tokenize(input1)
     val trees1 = parser.parseTokens(tokens1)
-    val result = interpreter.interpret(trees1)
+    val result = interpreter11.interpret(trees1)
 
-    val expected = mutable.Map("a" -> (NumberVariableType(), 1.0), "b" -> (NumberVariableType(), 2.0), "c" -> (NumberVariableType(), 3.0))
+    val expected = mutable.Map(
+      "a" -> (NumberVariableType(), 1.0),
+      "b" -> (NumberVariableType(), 2.0),
+      "c" -> (NumberVariableType(), 3.0)
+    )
 
     assertEquals(expected, result._2)
 
@@ -421,9 +458,13 @@ class InterpretationTesting {
     val input1 = "let a: number = 1; \n let b: number = 2; \n let c: number = a - b; \n println(c);"
     val tokens1 = lexer.tokenize(input1)
     val trees1 = parser.parseTokens(tokens1)
-    val result = interpreter.interpret(trees1)
+    val result = interpreter11.interpret(trees1)
 
-    val expected = mutable.Map("a" -> (NumberVariableType(), 1.0), "b" -> (NumberVariableType(), 2.0), "c" -> (NumberVariableType(), -1.0))
+    val expected = mutable.Map(
+      "a" -> (NumberVariableType(), 1.0),
+      "b" -> (NumberVariableType(), 2.0),
+      "c" -> (NumberVariableType(), -1.0)
+    )
     val expectedOutput = List[String]("-1.0")
 
     assertEquals(expected, result._2)
@@ -435,9 +476,13 @@ class InterpretationTesting {
     val input1 = "let a: number = 3; \n let b: number = 2; \n let c: number = a * b; \n println(c);"
     val tokens1 = lexer.tokenize(input1)
     val trees1 = parser.parseTokens(tokens1)
-    val result = interpreter.interpret(trees1)
+    val result = interpreter11.interpret(trees1)
 
-    val expected = mutable.Map("a" -> (NumberVariableType(), 3.0), "b" -> (NumberVariableType(), 2.0), "c" -> (NumberVariableType(), 6.0))
+    val expected = mutable.Map(
+      "a" -> (NumberVariableType(), 3.0),
+      "b" -> (NumberVariableType(), 2.0),
+      "c" -> (NumberVariableType(), 6.0)
+    )
     val expectedOutput = List[String]("6.0")
 
     assertEquals(expected, result._2)
@@ -446,12 +491,17 @@ class InterpretationTesting {
 
   @Test
   def test36_sumOfVariableAndConstantShouldSucceed() = {
-    val input1 = "let a: number = 3; \n let b: number = 2; \n let c: number = a + b + 1; \n println(c);"
+    val input1 =
+      "let a: number = 3; \n let b: number = 2; \n let c: number = a + b + 1; \n println(c);"
     val tokens1 = lexer.tokenize(input1)
     val trees1 = parser.parseTokens(tokens1)
-    val result = interpreter.interpret(trees1)
+    val result = interpreter11.interpret(trees1)
 
-    val expected = mutable.Map("a" -> (NumberVariableType(), 3.0), "b" -> (NumberVariableType(), 2.0), "c" -> (NumberVariableType(), 6.0))
+    val expected = mutable.Map(
+      "a" -> (NumberVariableType(), 3.0),
+      "b" -> (NumberVariableType(), 2.0),
+      "c" -> (NumberVariableType(), 6.0)
+    )
     val expectedOutput = List[String]("6.0")
 
     assertEquals(expected, result._2)
@@ -460,12 +510,17 @@ class InterpretationTesting {
 
   @Test
   def test37_sumOfStringsShouldSucceed() = {
-    val input1 = "let a: string = \"Hello\"; \n let b: string = \"World\"; \n let c: string = a + b; \n println(c);"
+    val input1 =
+      "let a: string = \"Hello\"; \n let b: string = \"World\"; \n let c: string = a + b; \n println(c);"
     val tokens1 = lexer.tokenize(input1)
     val trees1 = parser.parseTokens(tokens1)
-    val result = interpreter.interpret(trees1)
+    val result = interpreter11.interpret(trees1)
 
-    val expected = mutable.Map("a" -> (StringVariableType(), "Hello"), "b" -> (StringVariableType(), "World"), "c" -> (StringVariableType(), "HelloWorld"))
+    val expected = mutable.Map(
+      "a" -> (StringVariableType(), "Hello"),
+      "b" -> (StringVariableType(), "World"),
+      "c" -> (StringVariableType(), "HelloWorld")
+    )
     val expectedOutput = List[String]("HelloWorld")
 
     assertEquals(expected, result._2)
@@ -474,12 +529,17 @@ class InterpretationTesting {
 
   @Test
   def test38_sumOfStringsAndNumbersShouldSucceed() = {
-    val input1 = "let a: string = \"Hello\"; \n let b: number = 1; \n let c: string = a + b; \n println(c);"
+    val input1 =
+      "let a: string = \"Hello\"; \n let b: number = 1; \n let c: string = a + b; \n println(c);"
     val tokens1 = lexer.tokenize(input1)
     val trees1 = parser.parseTokens(tokens1)
-    val result = interpreter.interpret(trees1)
+    val result = interpreter11.interpret(trees1)
 
-    val expected = mutable.Map("a" -> (StringVariableType(), "Hello"), "b" -> (NumberVariableType(), 1.0), "c" -> (StringVariableType(), "Hello1.0"))
+    val expected = mutable.Map(
+      "a" -> (StringVariableType(), "Hello"),
+      "b" -> (NumberVariableType(), 1.0),
+      "c" -> (StringVariableType(), "Hello1.0")
+    )
     val expectedOutput = List[String]("Hello1.0")
 
     assertEquals(expected, result._2)
@@ -488,12 +548,17 @@ class InterpretationTesting {
 
   @Test
   def test39_sumOdStringsAndNumbersShouldSucceedInEitherOrder() = {
-    val input1 = "let a: number = 2.5; \n let b: string = \"Hello\"; \n let c: string = a + b; \n println(c);"
+    val input1 =
+      "let a: number = 2.5; \n let b: string = \"Hello\"; \n let c: string = a + b; \n println(c);"
     val tokens1 = lexer.tokenize(input1)
     val trees1 = parser.parseTokens(tokens1)
-    val result = interpreter.interpret(trees1)
+    val result = interpreter11.interpret(trees1)
 
-    val expected = mutable.Map("a" -> (NumberVariableType(), 2.5), "b" -> (StringVariableType(), "Hello"), "c" -> (StringVariableType(), "2.5Hello"))
+    val expected = mutable.Map(
+      "a" -> (NumberVariableType(), 2.5),
+      "b" -> (StringVariableType(), "Hello"),
+      "c" -> (StringVariableType(), "2.5Hello")
+    )
     val expectedOutput = List[String]("2.5Hello")
 
     assertEquals(expected, result._2)
@@ -505,9 +570,12 @@ class InterpretationTesting {
     val input1 = "let b: string = \"Hello\"; \n let c: string = 10 + b; \n println(c);"
     val tokens1 = lexer.tokenize(input1)
     val trees1 = parser.parseTokens(tokens1)
-    val result = interpreter.interpret(trees1)
+    val result = interpreter11.interpret(trees1)
 
-    val expected = mutable.Map("b" -> (StringVariableType(), "Hello"), "c" -> (StringVariableType(), "10.0Hello"))
+    val expected = mutable.Map(
+      "b" -> (StringVariableType(), "Hello"),
+      "c" -> (StringVariableType(), "10.0Hello")
+    )
     val expectedOutput = List[String]("10.0Hello")
 
     assertEquals(expected, result._2)
@@ -519,7 +587,7 @@ class InterpretationTesting {
     val input1 = "let a: number = 2.5; \n println(a);"
     val tokens1 = lexer.tokenize(input1)
     val trees1 = parser.parseTokens(tokens1)
-    val result = interpreter.interpret(trees1)
+    val result = interpreter11.interpret(trees1)
 
     val expected = mutable.Map("a" -> (NumberVariableType(), 2.5))
     val expectedOutput = List[String]("2.5")
@@ -533,7 +601,7 @@ class InterpretationTesting {
     val input = "let a: number = 2.5; a = a + 1;"
     val tokens = lexer.tokenize(input)
     val trees = parser.parseTokens(tokens)
-    val result = interpreter.interpret(trees)
+    val result = interpreter11.interpret(trees)
 
     val expected = mutable.Map("a" -> (NumberVariableType(), 3.5))
 
@@ -545,7 +613,7 @@ class InterpretationTesting {
     val input = "println(\"Hello\");"
     val tokens = lexer.tokenize(input)
     val trees = parser.parseTokens(tokens)
-    val result = interpreter.interpret(trees)
+    val result = interpreter11.interpret(trees)
 
     val expected = mutable.Map()
     val expectedOutput = List[String]("Hello")
@@ -553,4 +621,117 @@ class InterpretationTesting {
     assertEquals(expected, result._2)
     assertEquals(expectedOutput, result._1)
   }
+
+  @Test
+  def test44_ifShouldSucceed() = {
+    val input = "let a: number = 2.5; if (true) { println(a); }"
+    val tokens = lexer.tokenize(input)
+    val trees = parser.parseTokens(tokens)
+    val result = interpreter11.interpret(trees)
+
+    val expected = mutable.Map("a" -> (NumberVariableType(), 2.5))
+    val expectedOutput = List[String]("2.5")
+
+    assertEquals(expected, result._2)
+    assertEquals(expectedOutput, result._1)
+  }
+
+  @Test
+  def test45_ifShouldSucceed() = {
+    val input = "let a: number = 2.5; if (false) { println(a); }"
+    val tokens = lexer.tokenize(input)
+    val trees = parser.parseTokens(tokens)
+    val result = interpreter11.interpret(trees)
+
+    val expected = mutable.Map("a" -> (NumberVariableType(), 2.5))
+    val expectedOutput = List[String]()
+
+    assertEquals(expected, result._2)
+    assertEquals(expectedOutput, result._1)
+  }
+
+  @Test
+  def test46_ifElseShouldSucceed() = {
+    val input = "let a: number = 2.5; if (true) { println(a); } else { println(a + 1); }"
+    val tokens = lexer.tokenize(input)
+    val trees = parser.parseTokens(tokens)
+    val result = interpreter11.interpret(trees)
+
+    val expected = mutable.Map("a" -> (NumberVariableType(), 2.5))
+    val expectedOutput = List[String]("2.5")
+
+    assertEquals(expected, result._2)
+    assertEquals(expectedOutput, result._1)
+  }
+
+  @Test
+  def test47_ifElseShouldSucceed() = {
+    val input = "let a: number = 2.5; if (false) { println(a); } else { println(a + 1); }"
+    val tokens = lexer.tokenize(input)
+    val trees = parser.parseTokens(tokens)
+    val result = interpreter11.interpret(trees)
+
+    val expected = mutable.Map("a" -> (NumberVariableType(), 2.5))
+    val expectedOutput = List[String]("3.5")
+
+    assertEquals(expected, result._2)
+    assertEquals(expectedOutput, result._1)
+  }
+
+  @Test
+  def test48_ifWithVariableShouldSucceed() = {
+    val input = "let a: boolean = true; if (a) { println(a); }"
+    val tokens = lexer.tokenize(input)
+    val trees = parser.parseTokens(tokens)
+    val result = interpreter11.interpret(trees)
+
+    val expected = mutable.Map("a" -> (BooleanVariableType(), true))
+    val expectedOutput = List[String]("true")
+
+    assertEquals(expected, result._2)
+    assertEquals(expectedOutput, result._1)
+  }
+
+  @Test
+  def test49_ifWithVariableShouldSucceed() = {
+    val input = "let a: boolean = false; if (a) { println(a); }"
+    val tokens = lexer.tokenize(input)
+    val trees = parser.parseTokens(tokens)
+    val result = interpreter11.interpret(trees)
+
+    val expected = mutable.Map("a" -> (BooleanVariableType(), false))
+    val expectedOutput = List[String]()
+
+    assertEquals(expected, result._2)
+    assertEquals(expectedOutput, result._1)
+  }
+
+  @Test
+  def test50_ifElseWithVariableShouldSucceed() = {
+    val input = "let a: boolean = true; if (a) { println(a); } else { println(\' hello \'); }"
+    val tokens = lexer.tokenize(input)
+    val trees = parser.parseTokens(tokens)
+    val result = interpreter11.interpret(trees)
+
+    val expected = mutable.Map("a" -> (BooleanVariableType(), true))
+    val expectedOutput = List[String]("true")
+
+    assertEquals(expected, result._2)
+    assertEquals(expectedOutput, result._1)
+  }
+
+  @Test
+  def test51_ifElseWithVariableShouldSucceed() = {
+    val input = "let a: boolean = false; if (a) { println(a); } else { println(\'hello\'); }"
+    val tokens = lexer.tokenize(input)
+    val trees = parser.parseTokens(tokens)
+    val result = interpreter11.interpret(trees)
+
+    val expected = mutable.Map("a" -> (BooleanVariableType(), false))
+    val expectedOutput = List[String]("\'hello\'")
+
+    assertEquals(expected, result._2)
+    assertEquals(expectedOutput, result._1)
+  }
+
 }
