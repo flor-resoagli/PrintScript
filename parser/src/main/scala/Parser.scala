@@ -54,6 +54,7 @@ class Parser(validInitialTokens: List[TokenType], parserProvider: ParserProvider
 
 
   private def checkForSemicolonLeftUnparsed(result: (AST, Queue[Token])): Queue[Token] = {
+    if(result._2.isEmpty) error(("Line should end with semicolon"))
 //    if (result._2.head.tokenType == SEMICOLON() && result._2.tail.isEmpty) error("Line should end with semicolon")
     if (result._2.head.tokenType == SEMICOLON()) result._2.tail
     else result._2

@@ -10,6 +10,11 @@ sealed trait VariableType {
   def isInstance(a: Any): Boolean
 }
 
+case class BooleanVariableType() extends VariableType {
+  def isInstance(a: Any): Boolean = a.isInstanceOf[Boolean]
+  def isConstant(): Boolean = false
+}
+
 case class StringVariableType() extends VariableType {
   def isInstance(a: Any): Boolean = a.isInstanceOf[String]
 }
@@ -48,4 +53,4 @@ case class VariableTypeNode(value: VariableType) extends AST
 case class PrintNode(value: AST) extends AST
 case class EmptyNode() extends AST
 case class IfNode(cond: AST, leftTrue: List[AST], rightFalse: List[AST]) extends AST
-case class ReadInputNode(message: String) extends AST
+case class ReadInputNode(message: AST) extends AST

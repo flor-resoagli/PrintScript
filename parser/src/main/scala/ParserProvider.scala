@@ -9,6 +9,7 @@ trait ParserProvider {
 
 class ParserProvider10 extends ParserProvider {
 
+//  val tokenParserMap: Map[TokenType, TokenTypeParser]
   //TODO: No hace falta la separacion del identifier creo, se puede mandar como los otros
   //TODO: MANDALE UN MAPA como parametro SALAME
 
@@ -30,10 +31,20 @@ class ParserProvider10 extends ParserProvider {
       case PRINTLN() => PrintParser(firstInExpression, this)
       case IDENTIFIER() => getIdentifierParser(identifierState)
       case SEMICOLON() => SemicolonParser(firstInLine)
+      case _ => throw new Exception("Unsupported Token")
 //      case EQUAL() => ValueAssignationParser(firstInExpression)
 
     }
   }
+
+//  def getTokenParserFromMap(tokenType: TokenType): TokenTypeParser ={
+//    tokenParserMap.get(tokenType).get
+//  }
+//  def generateMap(tokenType: TokenType, identifierState: IdentifierState): Map[TokenType, TokenTypeParser] ={
+//
+//  }
+
+
   def getIdentifierParser(state: IdentifierState): TokenTypeParser ={
     val firstInExpression = List(LITERALNUMBER(), LITERALSTRING(), LEFTPARENTHESIS(), IDENTIFIER())
 
@@ -55,25 +66,26 @@ class ParserProvider11 extends ParserProvider {
 
   def getTokenParser(tokenType: TokenType, identifierState: IdentifierState): TokenTypeParser ={
 
-    val firstInExpression = List(LITERALNUMBER(), LITERALSTRING(), LEFTPARENTHESIS(), IDENTIFIER())
+    val firstInExpression = List(LITERALNUMBER(), LITERALSTRING(), LEFTPARENTHESIS(), IDENTIFIER(), LITERALBOOLEAN())
     val firstInLine = List(DECLARATION(), IDENTIFIER(), PRINTLN())
 
     tokenType match {
       case LITERALNUMBER() => LiteralNumbParser(List(SUM(), SUB(), DIV(), MUL(),  RIGHTPARENTHESIS()), this, SemicolonParser(firstInLine))
       case LITERALSTRING() => LiteralStringParser(List(SUM(), RIGHTPARENTHESIS()), this, SemicolonParser(firstInLine))
+      case LITERALBOOLEAN() => ConstantBooleanParser()
       case SUM() => AdditionParser(firstInExpression, this)
       case SUB() => SubstractionParser(List(LITERALNUMBER(), LEFTPARENTHESIS(), IDENTIFIER()), this)
       case MUL() => HighPriorityOperationParser(List(LITERALNUMBER(), LEFTPARENTHESIS(), IDENTIFIER()), this)
       case DIV() => HighPriorityOperationParser(List(LITERALNUMBER(), LEFTPARENTHESIS(), IDENTIFIER()), this)
       case LEFTPARENTHESIS() => LeftParenthesisParser(firstInExpression, this)
       case RIGHTPARENTHESIS() => RightParenthesisParser(List(SUM(), SUB(), DIV(), MUL(), SEMICOLON()), this, SEMICOLON())
-      case DECLARATION() => DeclarationParser(List(StringTypeParser(List(STRINGTYPE(), READINPUT())), NumberTypeParser()), firstInExpression, this, List(DECLARATION(), CONSTANT()))
+      case DECLARATION() => DeclarationParser(List(StringTypeParser(List(STRINGTYPE(), READINPUT())), NumberTypeParser(), BooleanTypeParser()), firstInExpression++List(READINPUT()), this, List(DECLARATION()))
       case PRINTLN() => PrintParser(firstInExpression, this)
       case IDENTIFIER() => getIdentifierParser(identifierState)
       case SEMICOLON() => SemicolonParser(firstInLine)
-      case CONSTANT() => DeclarationParser(List(ConstantNumbParser(), ConstantStringParser()), firstInExpression++List(READINPUT()), this, List(DECLARATION(), CONSTANT()))
+      case CONSTANT() => DeclarationParser(List(ConstantNumbParser(), ConstantStringParser()), firstInExpression++List(READINPUT()), this, List(CONSTANT()))
       case IF() => IfParser(firstInLine, this, ConditionParser())
-      case READINPUT() => ReadInputParser(List(LITERALSTRING()), this)
+      case READINPUT() => ReadInputParser(List(ConstantStringParser(), LiteralStringParser(List(SUM(), RIGHTPARENTHESIS()), this, SemicolonParser(firstInLine))), this)
       //      case EQUAL() => ValueAssignationParser(firstInExpression)
 
     }
