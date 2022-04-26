@@ -15,7 +15,16 @@ type ParsingResult= (AST, Queue[Token])
 def error(msg: String): Nothing = {
   throw new Exception (msg)
 }
-def checkIfNextIsExpected(expected: String, tokens: Queue[Token]): Unit = if (tokens.isEmpty) error(s"Expected $expected but nothing was found")
+def toMutable(queue: immutable.Queue[Token]): mutable.Queue[Token] = {
+  val empty = mutable.Queue.empty[Token]
+  var tmp: immutable.Queue[Token] = queue
+  while (tmp.nonEmpty) {
+    val (token, nextQueue) = tmp.dequeue
+    empty.enqueue(token)
+    tmp = nextQueue
+  }
+  empty
+}
 def validateCurrentToken(tokens: Queue[Token], expectedTokenType: TokenType, symbol: String): Queue[Token] = {
   if(tokens.isEmpty)error(s"Expected $symbol")
   var (front, tail) = tokens.dequeue
@@ -24,6 +33,9 @@ def validateCurrentToken(tokens: Queue[Token], expectedTokenType: TokenType, sym
 }
 def isEmpty(result: (AST, Queue[Token])): Boolean = {
   result._1 == EmptyNode()
+}
+def toImmutable(queue: mutable.Queue[Token]): immutable.Queue[Token] = {
+  immutable.Queue(queue.toList: _*)
 }
 
 def isSemicolon(newTokens: Queue[Token]): Boolean = {
@@ -36,7 +48,7 @@ case class DeclarationParser(varibleTypes: List[TokenTypeParser], validExpressio
 
   override def parse(unparsedTokens: Queue[Token], buildingAST: AST): ParsingResult = {
     val (let, tokens) = unparsedTokens.dequeue
-    checkIfNextIsExpected("variable name", tokens)
+//    checkIfNextIsExpected("variable name", tokens)
     val (variable, newTokens) = tokens.dequeue
 
     val (varibleTypeNode, tokensWithoutVaribleType) = VariableTypeParser(varibleTypes).parse(newTokens, buildingAST)
@@ -93,42 +105,67 @@ case class VariableReassignationParser(expressions: List[TokenType], parserProvi
     expressions
   }
 }
-case class IfParser(expressions: List[TokenType], parserProvider: ParserProvider, conditionParser: ConditionParser) extends TokenTypeParser{
+//TODO: Core of method does the same asLEft  parenthesis excepto for the tokens list, the parenthesis check instead of braces and the function that calls
+case class IfParser(validParsers: List[TokenType], parserProvider: ParserProvider, conditionParser: ConditionParser) extends TokenTypeParser{
 
   override def parse(unparsedTokens: Queue[Token], buildingAST: AST): ParsingResult = {
-    val (variable, newTokens) = unparsedTokens.dequeue
+    val (ifToken, newTokens) = unparsedTokens.dequeue
 
     val (condition, tokens) = conditionParser.parse(newTokens, EmptyNode())
+    val tokensAfterLetfBrace = validateCurrentToken(tokens, LEFTBRACE(), "left brace")
+
+    var auxQueue= mutable.Queue[Token]()
+    auxQueue ++= tokensAfterLetfBrace
+    val accumulatorQueue =  mutable.Queue[Token]()
+    var maybeInnerIfResult: ParsingResult = (EmptyNode(), unparsedTokens)
+
+      while (notRightBrace(auxQueue)) {
+        if (isIfCondition(auxQueue)) {
+          val result =  this.parse(toImmutable(auxQueue), EmptyNode())
+          val newQueue = result._2.tail
+          return (IfNode(condition, List(result._1), List()), newQueue)
+        }
+        accumulatorQueue.enqueue(auxQueue.dequeue())
+      }
+    val innerTokensParseResult: List[AST] = Parser(validParsers, parserProvider).parseTokens(accumulatorQueue.toList)
 
 
+    auxQueue.dequeue()
+    auxQueue.enqueue(Token(SEMICOLON(), AbsoluteRange(0, 0), LexicalRange(0, 0, 0, 0), ";"))
 
-//    val node = IfNode(cond, , )
+    (IfNode(condition, innerTokensParseResult, Nil), toImmutable(auxQueue))
+  }
 
-//    (node, resultTokens)
-    (condition, tokens)
+  def notRightBrace(unparsedTokens: mutable.Queue[Token]): Boolean = {
+//    if(unparsedTokens.isEmpty) error("missing right brace")
+    unparsedTokens.nonEmpty && !unparsedTokens.front.tokenType.equals(RIGHTBRACE())
+  }
+  def isIfCondition(unparsedTokens: mutable.Queue[Token]): Boolean = {
+    unparsedTokens.headOption.exists(token => token.tokenType == IF())
   }
 
   def isValid(unparsedTokens: Queue[Token]): Boolean = {
     unparsedTokens.headOption.exists(token => token.tokenType == IF())
   }
   def getNext(): List[TokenType] = {
-    expressions
+    validParsers
   }
 }
 
 case class ConditionParser() extends TokenTypeParser{
 
   override def parse(unparsedTokens: Queue[Token], buildingAST: AST): ParsingResult = {
-    val (condition, newTokens) = unparsedTokens.dequeue
-    val (rightParenthesis, newTokens2) = unparsedTokens.dequeue
+    val tokens = validateCurrentToken(unparsedTokens, LEFTPARENTHESIS(), "left parenthesis")
+    val (condition, newTokens) = tokens.dequeue
+    val expTokens = validateCurrentToken(newTokens, RIGHTPARENTHESIS(), "right parenthesis")
 
-    val node = condition.value match {
+    val node: AST = condition.value match {
       case "true" => ConstantBoolean(true)
       case "false" => ConstantBoolean(false)
       case _ => Variable(condition.value)
     }
 
-    (node, newTokens2)
+    (node, expTokens)
 
 
   }
@@ -199,7 +236,7 @@ case class ConstantStringParser() extends TokenTypeParser{
 }
 
 
-case class StringTypeParser() extends TokenTypeParser{
+case class StringTypeParser(validTokens: List[TokenType]) extends TokenTypeParser{
 
   override def parse(unparsedTokens: Queue[Token], buildingAST: AST): ParsingResult = {
     val (variableType, newTokens) = unparsedTokens.dequeue
@@ -208,7 +245,7 @@ case class StringTypeParser() extends TokenTypeParser{
   }
 
   def isValid(unparsedTokens: Queue[Token]): Boolean = {
-    unparsedTokens.headOption.exists(token => token.tokenType == STRINGTYPE())
+    unparsedTokens.headOption.exists(token => validTokens.contains(token.tokenType))
   }
   def getNext(): List[TokenType] = {
     Nil
@@ -245,6 +282,29 @@ case class PrintParser(validTokens: List[TokenType], parserProvider: ParserProvi
 
   def isValid(unparsedTokens: Queue[Token]): Boolean = {
     unparsedTokens.headOption.exists(token => token.tokenType == PRINTLN())
+  }
+  def getNext(): List[TokenType] = {
+    validTokens
+  }
+}
+
+case class ReadInputParser(validTokens: List[TokenType], parserProvider: ParserProvider) extends TokenTypeParser{
+
+  override def parse(unparsedTokens: Queue[Token], buildingAST: AST): ParsingResult = {
+    val (readInput, tokens) = unparsedTokens.dequeue
+    val newTokens = validateCurrentToken(tokens, LEFTPARENTHESIS(), "Expected '(' after read input")
+    val (input, newTokens2) = newTokens.dequeue
+
+    var result: ParsingResult = parserProvider.getParsers(validTokens, IdentifierState.InUse).find(parser => parser.isValid(Queue(input))).get.parse(Queue(input), buildingAST)
+
+    val finalTokens = validateCurrentToken(newTokens2, RIGHTPARENTHESIS(), "Expected ')'")
+
+
+    (ReadInputNode(result._1.asInstanceOf[ConstantString].value), finalTokens)
+  }
+
+  def isValid(unparsedTokens: Queue[Token]): Boolean = {
+    unparsedTokens.headOption.exists(token => token.tokenType == READINPUT())
   }
   def getNext(): List[TokenType] = {
     validTokens
@@ -351,14 +411,12 @@ case class LeftParenthesisParser(parsersToCall: List[TokenType], parserProvider:
 
     val parenthesisResult = (ExpressionParser(parsersToCall, parserProvider).parse(toImmutable(accumulatorQueue), resultAux._1)._1, toImmutable(auxQueue))
 
-    val previousTokenValidParsers = parserProvider.getTokenParser(accumulatorHead.tokenType, IdentifierState.InUse).getNext()
-    ExpressionParser(previousTokenValidParsers, parserProvider).parse(toImmutable(auxQueue), parenthesisResult._1)
+    val lastTokenValidParsers = parserProvider.getTokenParser(accumulatorHead.tokenType, IdentifierState.InUse).getNext()
+    ExpressionParser(lastTokenValidParsers, parserProvider).parse(toImmutable(auxQueue), parenthesisResult._1)
     //    RightParenthesisParser(parsersToCall, parserProvider, SEMICOLON()).parse(result._2, result._1)
 
   }
-  def toImmutable(queue: mutable.Queue[Token]): immutable.Queue[Token] = {
-    immutable.Queue(queue.toList: _*)
-  }
+
   def isLeftParen(unparsedTokens: mutable.Queue[Token]): Boolean = {
     unparsedTokens.isEmpty || unparsedTokens.front.tokenType == LEFTPARENTHESIS()
   }

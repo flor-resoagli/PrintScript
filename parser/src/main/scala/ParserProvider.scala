@@ -10,6 +10,7 @@ trait ParserProvider {
 class ParserProvider10 extends ParserProvider {
 
   //TODO: No hace falta la separacion del identifier creo, se puede mandar como los otros
+  //TODO: MANDALE UN MAPA como parametro SALAME
 
   def getTokenParser(tokenType: TokenType, identifierState: IdentifierState): TokenTypeParser ={
 
@@ -25,7 +26,7 @@ class ParserProvider10 extends ParserProvider {
       case DIV() => HighPriorityOperationParser(List(LITERALNUMBER(), LEFTPARENTHESIS(), IDENTIFIER()), this)
       case LEFTPARENTHESIS() => LeftParenthesisParser(firstInExpression, this)
       case RIGHTPARENTHESIS() => RightParenthesisParser(List(SUM(), SUB(), DIV(), MUL(), SEMICOLON()), this, SEMICOLON())
-      case DECLARATION() => DeclarationParser(List(StringTypeParser(), NumberTypeParser()), firstInExpression, this, List(DECLARATION()))
+      case DECLARATION() => DeclarationParser(List(StringTypeParser(List(STRINGTYPE())), NumberTypeParser()), firstInExpression, this, List(DECLARATION()))
       case PRINTLN() => PrintParser(firstInExpression, this)
       case IDENTIFIER() => getIdentifierParser(identifierState)
       case SEMICOLON() => SemicolonParser(firstInLine)
@@ -66,12 +67,13 @@ class ParserProvider11 extends ParserProvider {
       case DIV() => HighPriorityOperationParser(List(LITERALNUMBER(), LEFTPARENTHESIS(), IDENTIFIER()), this)
       case LEFTPARENTHESIS() => LeftParenthesisParser(firstInExpression, this)
       case RIGHTPARENTHESIS() => RightParenthesisParser(List(SUM(), SUB(), DIV(), MUL(), SEMICOLON()), this, SEMICOLON())
-      case DECLARATION() => DeclarationParser(List(StringTypeParser(), NumberTypeParser()), firstInExpression, this, List(DECLARATION(), CONSTANT()))
+      case DECLARATION() => DeclarationParser(List(StringTypeParser(List(STRINGTYPE(), READINPUT())), NumberTypeParser()), firstInExpression, this, List(DECLARATION(), CONSTANT()))
       case PRINTLN() => PrintParser(firstInExpression, this)
       case IDENTIFIER() => getIdentifierParser(identifierState)
       case SEMICOLON() => SemicolonParser(firstInLine)
-      case CONSTANT() => DeclarationParser(List(ConstantNumbParser(), ConstantStringParser()), firstInExpression, this, List(DECLARATION(), CONSTANT()))
-      case IF() => IfParser(firstInExpression, this, ConditionParser())
+      case CONSTANT() => DeclarationParser(List(ConstantNumbParser(), ConstantStringParser()), firstInExpression++List(READINPUT()), this, List(DECLARATION(), CONSTANT()))
+      case IF() => IfParser(firstInLine, this, ConditionParser())
+      case READINPUT() => ReadInputParser(List(LITERALSTRING()), this)
       //      case EQUAL() => ValueAssignationParser(firstInExpression)
 
     }

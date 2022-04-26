@@ -19,7 +19,7 @@ class Pareser11 extends ParserBuilder {
 
   def build(): Parser = {
     val startOfLineParsers = List[TokenType](
-      DECLARATION(), IDENTIFIER(), PRINTLN(), CONSTANT(), IF()
+      DECLARATION(), IDENTIFIER(), PRINTLN(), CONSTANT(), IF(), READINPUT()
     )
     new Parser(startOfLineParsers, ParserProvider11())
   }
