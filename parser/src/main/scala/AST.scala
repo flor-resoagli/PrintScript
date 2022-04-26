@@ -48,3 +48,4 @@ case class VariableTypeNode(value: VariableType) extends AST
 case class PrintNode(value: AST) extends AST
 case class EmptyNode() extends AST
 case class IfNode(cond: AST, leftTrue: List[AST], rightFalse: List[AST]) extends AST
+case class ReadInputNode(message: String) extends AST
