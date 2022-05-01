@@ -199,10 +199,12 @@ case class IfParser(
         if (isIfCondition(auxQueue)) {
           val result = this.parse(toImmutable(auxQueue), EmptyNode())
           val (rightPArenthesis, newQueue) = result._2.dequeue
+          maybeInnerIfResult = result
+          if(newQueue.isEmpty) then break()
           auxQueue = toMutable(newQueue.tail)
           auxQueue.enqueue(rightPArenthesis)
-          maybeInnerIfResult = result
           break()
+
         }
         accumulatorQueue.enqueue(auxQueue.dequeue())
       }
@@ -213,10 +215,7 @@ case class IfParser(
     auxQueue.dequeue()
 
     val elseParser = ElseParser(declarationPArsers, parserProvider)
-    val (elseNodes, tokensAfterElse): (List[AST], Queue[Token]) =
-      if (elseParser.isValid(toImmutable(auxQueue))) then
-        elseParser.parse(toImmutable(auxQueue), EmptyNode())
-      else (List(), Queue())
+    val (elseNodes, tokensAfterElse): (List[AST], Queue[Token]) = if (elseParser.isValid(toImmutable(auxQueue))) then elseParser.parse(toImmutable(auxQueue), EmptyNode()) else (List(), Queue())
     auxQueue = toMutable((tokensAfterElse))
 
     auxQueue.enqueue(Token(SEMICOLON(), AbsoluteRange(0, 0), LexicalRange(0, 0, 0, 0), ";"))

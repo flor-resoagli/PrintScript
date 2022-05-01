@@ -979,20 +979,20 @@ class Parser11Testing {
 
   }
 
-//    @Test
-//    def test65_nestedIdStmtsShouldSucceed() = {
-//      val input = "if (x) { if(true) { x = 1; } }"
-//      val tokens = lexer.tokenize(input)
-//
-//      val result = parser.parseTokens(tokens)
-//
-//      val innerIfNode = List(IfNode(ConstantBoolean(true), List(AssignationNode(Variable("x"),ConstantNumb(1.0))), List()))
-//      val expected  =  List(IfNode(Variable("x"), innerIfNode, List()))
-//
-//
-//      assertEquals(expected, result)
-//
-//    }
+    @Test
+    def test65_nestedIdStmtsShouldSucceed() = {
+      val input = "if (x) { if(true) { x = 1; } }"
+      val tokens = lexer.tokenize(input)
+
+      val result = parser.parseTokens(tokens)
+
+      val innerIfNode = List(IfNode(ConstantBoolean(true), List(AssignationNode(Variable("x"),ConstantNumb(1.0))), List()))
+      val expected  =  List(IfNode(Variable("x"), innerIfNode, List()))
+
+
+      assertEquals(expected, result)
+
+    }
   @Test
   def test66_isTamtWithoutLeftBraceShouldFail() = {
     val input = "if (x)  x = 1; }"
@@ -1022,19 +1022,19 @@ class Parser11Testing {
     assertTrue(thrown.getMessage.contains(""))
   }
 
-//    @Test
-//    def test69_nestedIdStmtsWithFollowingStamtShouldSucceed() = {
-//      val input = "if (x) { if(true) { x = 1; } x = 2;}"
-//      val tokens = lexer.tokenize(input)
-//
-//      val result = parser.parseTokens(tokens)
-//
-//      val innerIfNode = List(IfNode(ConstantBoolean(true), List(AssignationNode(Variable("x"),ConstantNumb(1.0)), AssignationNode(Variable("x"),ConstantNumb(1.0))), List()))
-//      val expected  =  List(IfNode(Variable("x"), innerIfNode, List()))
-//
-//
-//      assertEquals(expected, result)
-//    }
+    @Test
+    def test69_nestedIdStmtsWithFollowingStamtShouldSucceed() = {
+      val input = "if (x) { if(true) { x = 1; } x = 2;}"
+      val tokens = lexer.tokenize(input)
+
+      val result = parser.parseTokens(tokens)
+
+      val innerIfNode = List(IfNode(ConstantBoolean(true), List(AssignationNode(Variable("x"),ConstantNumb(1.0)), AssignationNode(Variable("x"),ConstantNumb(1.0))), List()))
+      val expected  =  List(IfNode(Variable("x"), innerIfNode, List()))
+
+
+      assertEquals(expected, result)
+    }
 
   @Test
   def test70_readInputAStringStartingLineShouldSucceed() = {
@@ -1067,19 +1067,19 @@ class Parser11Testing {
     assertEquals(expected, result)
 
   }
-//
-//  @Test
-//  def test71_readInputAVariableStartingLineShouldSucceed() = {
-//    val input = "readInput(variable);"
-//    val tokens = lexer.tokenize(input)
-//
-//    val result = parser.parseTokens(tokens)
-//
-//    val expected  =  List(ReadInputNode())
-//
-//    assertEquals(expected, result)
-//
-//  }
+
+  @Test
+  def test71_readInputAVariableStartingLineShouldSucceed() = {
+    val input = "readInput(variable);"
+    val tokens = lexer.tokenize(input)
+
+    val result = parser.parseTokens(tokens)
+
+    val expected  =  List(ReadInputNode(Variable("variable")))
+
+    assertEquals(expected, result)
+
+  }
 
   @Test
   def test71_assignatingAReadInputStringStartingLineShouldSucceed() = {
