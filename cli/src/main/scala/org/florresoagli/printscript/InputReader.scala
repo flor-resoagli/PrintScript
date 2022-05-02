@@ -17,7 +17,9 @@ class FileReader(src: String) extends InputReader  {
 
   implicit class RichFile(file: File) {
      def read(): String =
-       val source = Source.fromFile(file)
+       val source = try Source.fromFile(file)   catch{
+         case e: java.io.FileNotFoundException => error("File not found")
+       }
        try source.getLines.mkString("\n") finally source.close()
 
    }
@@ -37,4 +39,6 @@ class FileReaderAdapter(file: File) extends InputReader {
       try source.getLines.mkString("\n") finally source.close()
 
   }
+
+  def error(msg: String) = throw new Exception(msg)
 }

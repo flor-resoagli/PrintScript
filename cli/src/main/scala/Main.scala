@@ -29,13 +29,12 @@ private def stop(): Unit = {
   System.exit(0)
 }
 private def UIRun() = {
-  println("Welcome!\n  Choose input type: \n  1. File \n  2. Console")
-  val input = chooseInput()
-  println("Choose compiler version: \n  1. 1.0 \n 2. 1.1")
-  val version = chooseVersion()
-  println("Choose mode: \n  1. Validation \n  2. Execution")
-  val runningMode = chooseMode()
-  val result = new Cli().run(input, version, runningMode)
+
+  val input: InputReader = askForInput
+  val version: String = askForVersion
+  val runningMode: RunningMode = askForRunningMode
+  tryToCompile(input, version, runningMode)
+
 }
 
 private def chooseMode(): RunningMode = {
@@ -43,11 +42,11 @@ private def chooseMode(): RunningMode = {
   input match {
     case "1" => {
       println("Running in validation mode")
-      new ValidationMode()
+      new ValidationMode(Nil)
     }
     case "2" => {
       println("Running in execution mode")
-      new ExecutionMode()
+      new ExecutionMode(Nil)
     }
     case _ => {
       println("Unsupported mode")
@@ -76,6 +75,31 @@ private def chooseInput(): InputReader = {
     case _ => {
       println("Wrong input")
       chooseInput()
+    }
+  }
+}
+
+def askForInput: InputReader = {
+  println("Welcome!\n  Choose input type: \n  1. File \n  2. Console")
+  val input = chooseInput()
+  input
+}
+
+def askForVersion: String = {
+  println("Choose compiler version: \n  1. 1.0 \n 2. 1.1")
+  val version = chooseVersion()
+  version
+}
+def askForRunningMode: RunningMode = {
+  println("Choose mode: \n  1. Validation \n  2. Execution")
+  val runningMode = chooseMode()
+  runningMode
+}
+
+def tryToCompile(input: InputReader, version:String, runningMode: RunningMode): Unit = {
+  val result = try new Cli().run(input, version, runningMode) catch {
+    case e: Exception => {
+      println(s"${e.getMessage}, please run again")
     }
   }
 }
