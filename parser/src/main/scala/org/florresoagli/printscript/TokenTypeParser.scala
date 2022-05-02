@@ -192,17 +192,21 @@ case class IfParser(
       tokensAfterLetfBrace
     )
     val accumulatorQueue = mutable.Queue[Token]()
-    var maybeInnerIfResult: ParsingResult = (EmptyNode(), unparsedTokens)
+    var maybeInnerIfNode: AST = EmptyNode()
 
     breakable {
-      while (notRightBrace(auxQueue)) {
+      while (!isRightBrace(auxQueue)) {
         if (isIfCondition(auxQueue)) {
-          val result = this.parse(toImmutable(auxQueue), EmptyNode())
-          val (rightPArenthesis, newQueue) = result._2.dequeue
-          auxQueue = toMutable(newQueue.tail)
-          auxQueue.enqueue(rightPArenthesis)
-          maybeInnerIfResult = result
-          break()
+          val (innerIfNode, newQueue) = this.parse(toImmutable(auxQueue), EmptyNode())
+          maybeInnerIfNode = innerIfNode
+          if(newQueue.isEmpty) then break()
+          auxQueue = toMutable(newQueue)
+          auxQueue.remove(auxQueue.size-1)
+          if (isRightBrace(mutable.Queue(auxQueue.front))) break()
+//          if (isSemicolon(toImmutable(auxQueue))) auxQueue.dequeue
+//          auxQueue.enqueue(rightPArenthesis)
+//          break()
+
         }
         accumulatorQueue.enqueue(auxQueue.dequeue())
       }
@@ -213,17 +217,14 @@ case class IfParser(
     auxQueue.dequeue()
 
     val elseParser = ElseParser(declarationPArsers, parserProvider)
-    val (elseNodes, tokensAfterElse): (List[AST], Queue[Token]) =
-      if (elseParser.isValid(toImmutable(auxQueue))) then
-        elseParser.parse(toImmutable(auxQueue), EmptyNode())
-      else (List(), Queue())
+    val (elseNodes, tokensAfterElse): (List[AST], Queue[Token]) = if (elseParser.isValid(toImmutable(auxQueue))) then elseParser.parse(toImmutable(auxQueue), EmptyNode()) else (List(), toImmutable(auxQueue))
     auxQueue = toMutable((tokensAfterElse))
 
     auxQueue.enqueue(Token(SEMICOLON(), AbsoluteRange(0, 0), LexicalRange(0, 0, 0, 0), ";"))
 
     val node =
-      if !(maybeInnerIfResult._1.isEmpty()) then
-        (List(maybeInnerIfResult._1) ++ innerTokensParseResult)
+      if !(maybeInnerIfNode.isEmpty()) then
+        (List(maybeInnerIfNode) ++ innerTokensParseResult)
       else innerTokensParseResult
 
     (IfNode(condition, node, elseNodes), toImmutable(auxQueue))
@@ -248,9 +249,9 @@ def getMutableQueue(tokensAfterLetfBrace: Queue[Token]): mutable.Queue[Token] = 
   auxQueue ++= tokensAfterLetfBrace
   auxQueue
 }
-def notRightBrace(unparsedTokens: mutable.Queue[Token]): Boolean = {
-  //    if(unparsedTokens.isEmpty) error("missing right brace")
-  unparsedTokens.nonEmpty && !unparsedTokens.front.tokenType.equals(RIGHTBRACE())
+def isRightBrace(unparsedTokens: mutable.Queue[Token]): Boolean = {
+//      if(unparsedTokens.isEmpty) error("missing right brace")
+  unparsedTokens.nonEmpty && unparsedTokens.front.tokenType.equals(RIGHTBRACE())
 }
 case class ElseParser(declarationPArsers: List[TokenType], parserProvider: ParserProvider) {
 
@@ -263,7 +264,7 @@ case class ElseParser(declarationPArsers: List[TokenType], parserProvider: Parse
     var maybeInnerIfResult: ParsingResult = (EmptyNode(), unparsedTokens)
 
     breakable {
-      while (notRightBrace(auxQueue)) {
+      while (!isRightBrace(auxQueue)) {
         accumulatorQueue.enqueue(auxQueue.dequeue())
       }
     }
@@ -543,25 +544,6 @@ case class ConstantStringParser() extends TokenTypeParser {
   }
 }
 
-case class SemicolonParser(parsersToCall: List[TokenType]) extends TokenTypeParser {
-
-  override def parse(unparsedTokens: Queue[Token], buildingAST: AST): ParsingResult = {
-    isValid(unparsedTokens)
-    val (semicolon, newTokens) = unparsedTokens.dequeue
-    (buildingAST, newTokens)
-
-  }
-  def isValid(unparsedTokens: Queue[Token]): Boolean = {
-    isSemicolon(unparsedTokens)
-//    if (isSemicolon(unparsedTokens)) true
-//    else error(s"Expected semicolon but found ${unparsedTokens.headOption.getOrElse("nothing")}")
-    //    unparsedTokens.headOption.exists(token => token.tokenType == SEMICOLON())
-  }
-  def getNext(): List[TokenType] = {
-    parsersToCall
-  }
-
-}
 
 case class LeftParenthesisParser(parsersToCall: List[TokenType], parserProvider: ParserProvider)
     extends TokenTypeParser {
@@ -640,6 +622,22 @@ case class RightParenthesisParser(
   }
 }
 
+case class SemicolonParser(tokens: List[TokenType]) extends TokenTypeParser {
+  override def parse(unparsedTokens: Queue[Token], buildingAST: AST): ParsingResult = {
+  if(buildingAST.isEmpty()) error("Expected expression")
+  (buildingAST, unparsedTokens)
+
+
+  }
+  def isValid(unparsedTokens: Queue[Token]): Boolean = {
+    unparsedTokens.headOption.exists(token => token.tokenType == SEMICOLON())
+  }
+
+  def getNext(): List[TokenType] = {
+    Nil
+  }
+
+}
 case class ExpressionParser(expectedTokens: List[TokenType], parserProvider: ParserProvider)
     extends TokenTypeParser {
   override def parse(unparsedTokens: Queue[Token], buildingAST: AST): ParsingResult = {

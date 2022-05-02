@@ -134,6 +134,7 @@ class ParserProvider11 extends ParserProvider {
         ReadInputParser(
           List(
             ConstantStringParser(),
+            getIdentifierParser(IdentifierState.InUse),
             LiteralStringParser(List(SUM(), RIGHTPARENTHESIS()), this, SemicolonParser(firstInLine))
           ),
           this
