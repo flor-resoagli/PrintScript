@@ -544,25 +544,6 @@ case class ConstantStringParser() extends TokenTypeParser {
   }
 }
 
-case class SemicolonParser(parsersToCall: List[TokenType]) extends TokenTypeParser {
-
-  override def parse(unparsedTokens: Queue[Token], buildingAST: AST): ParsingResult = {
-    isValid(unparsedTokens)
-    val (semicolon, newTokens) = unparsedTokens.dequeue
-    (buildingAST, newTokens)
-
-  }
-  def isValid(unparsedTokens: Queue[Token]): Boolean = {
-    isSemicolon(unparsedTokens)
-//    if (isSemicolon(unparsedTokens)) true
-//    else error(s"Expected semicolon but found ${unparsedTokens.headOption.getOrElse("nothing")}")
-    //    unparsedTokens.headOption.exists(token => token.tokenType == SEMICOLON())
-  }
-  def getNext(): List[TokenType] = {
-    parsersToCall
-  }
-
-}
 
 case class LeftParenthesisParser(parsersToCall: List[TokenType], parserProvider: ParserProvider)
     extends TokenTypeParser {
@@ -641,6 +622,22 @@ case class RightParenthesisParser(
   }
 }
 
+case class SemicolonParser(tokens: List[TokenType]) extends TokenTypeParser {
+  override def parse(unparsedTokens: Queue[Token], buildingAST: AST): ParsingResult = {
+  if(buildingAST.isEmpty()) error("Expected expression")
+  (buildingAST, unparsedTokens)
+
+
+  }
+  def isValid(unparsedTokens: Queue[Token]): Boolean = {
+    unparsedTokens.headOption.exists(token => token.tokenType == SEMICOLON())
+  }
+
+  def getNext(): List[TokenType] = {
+    Nil
+  }
+
+}
 case class ExpressionParser(expectedTokens: List[TokenType], parserProvider: ParserProvider)
     extends TokenTypeParser {
   override def parse(unparsedTokens: Queue[Token], buildingAST: AST): ParsingResult = {

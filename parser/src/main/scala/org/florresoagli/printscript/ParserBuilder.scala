@@ -1,6 +1,5 @@
 package org.florresoagli.printscript
 
-import org.florresoagli.printscript.Parser
 
 import scala.::
 

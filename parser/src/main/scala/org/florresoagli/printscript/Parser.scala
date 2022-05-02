@@ -1,4 +1,5 @@
 package org.florresoagli.printscript
+import  org.florresoagli.printscript.Token
 
 import scala.collection.immutable
 import scala.collection.immutable.Queue
@@ -44,16 +45,16 @@ class Parser(validInitialTokens: List[TokenType], parserProvider: ParserProvider
           result = parser.parse(unparsedTokens, EmptyNode())
         }
       })
-    val queue = checkForSemicolonLeftUnparsed(result)
+    val queue = checkForTermianlLeftUnparsed(result)
     if (result._1.isEmpty())
       error(s"Expected literal, variable or 'let' but found ${unparsedTokens.head.tokenType}")
     (result._1, queue)
   }
 
-  private def checkForSemicolonLeftUnparsed(result: (AST, Queue[Token])): Queue[Token] = {
+  private def checkForTermianlLeftUnparsed(result: (AST, Queue[Token])): Queue[Token] = {
     if (result._2.isEmpty) error(("Line should end with semicolon"))
 //    if (result._2.head.tokenType == SEMICOLON() && result._2.tail.isEmpty) error("Line should end with semicolon")
-    if (result._2.head.tokenType == SEMICOLON()) result._2.tail
+    if (result._2.head.tokenType == SEMICOLON() || result._2.head.tokenType == RIGHTBRACE()) result._2.tail
     else result._2
   }
 }

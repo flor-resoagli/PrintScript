@@ -87,7 +87,7 @@ class Parser11Testing {
     assertTrue(thrown.getMessage.contains(s""))
 
   }
-  //
+
 //    @Test
 //    def test08_DeclarationAssignationShouldFailWithoutValue() = {
 //      val input = "let variable: number = ;"
@@ -108,6 +108,7 @@ class Parser11Testing {
     val thrown = assertThrows(classOf[Exception], () => parser.parseTokens(tokens))
 
     //        assertTrue(thrown.getMessage.contains(s"Line should"))
+    System.out.print("L: "+thrown.getMessage)
     assertTrue(thrown.getMessage.contains(s"Line should end with semicolon"))
 
   }
@@ -438,6 +439,8 @@ class Parser11Testing {
 //    def test27_EndingLineWithDoubleParenthesisShouldFail() = {
 //      val input = "let variable: number = 2*(2+1));"
 //      val tokens = lexer.tokenize(input)
+//
+//      parser.parseTokens(tokens)
 //
 //      val thrown = assertThrows(classOf[Exception], () => parser.parseTokens(tokens))
 //
@@ -1029,7 +1032,7 @@ class Parser11Testing {
 
       val result = parser.parseTokens(tokens)
 
-      val innerIfNode = List(IfNode(ConstantBoolean(true), List(AssignationNode(Variable("x"),ConstantNumb(1.0)), AssignationNode(Variable("x"),ConstantNumb(1.0))), List()))
+      val innerIfNode = List((IfNode(ConstantBoolean(true), List(AssignationNode(Variable("x"),ConstantNumb(1.0))), List())), AssignationNode(Variable("x"),ConstantNumb(2.0)))
       val expected  =  List(IfNode(Variable("x"), innerIfNode, List()))
 
 
