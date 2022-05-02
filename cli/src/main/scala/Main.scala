@@ -1,13 +1,7 @@
 import scala.io.StdIn.readLine
-import org.florresoagli.printscript.{
-  Cli,
-  RunningMode,
-  ValidationMode,
-  ExecutionMode,
-  InputReader,
-  FileReader,
-  ConsoleReader
-}
+import org.florresoagli.printscript.{Cli, ConsoleReader, ErrorEmitterImpl, ExecutionMode, FileReader, InputReader, PrintEmiterImpl, RunningMode, ValidationMode}
+
+import java.util.Observer
 
 object CliRunner extends App {
 
@@ -42,11 +36,11 @@ private def chooseMode(): RunningMode = {
   input match {
     case "1" => {
       println("Running in validation mode")
-      new ValidationMode(Nil)
+      new ValidationMode(PrintEmiterImpl(), ErrorEmitterImpl())
     }
     case "2" => {
       println("Running in execution mode")
-      new ExecutionMode(Nil)
+      new ExecutionMode(PrintEmiterImpl(), ErrorEmitterImpl())
     }
     case _ => {
       println("Unsupported mode")
