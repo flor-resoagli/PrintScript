@@ -5,24 +5,23 @@ import java.util
 import java.util.Observer
 import scala.collection.mutable.Map
 import scala.jdk.CollectionConverters._
-
-
+import java.util.{List => JList}
 
 trait Observer {
 
-  def update(result: java.util.List[java.lang.String]):Unit
-  def getList(): java.util.List[java.lang.String]
+  def update(result: JList[String]):Unit
+  def getList(): JList[String]
 
 }
 class PrintEmiterImpl extends Observer {
 
- val  output: java.util.List[java.lang.String] = new java.util.ArrayList[java.lang.String]();
+ val  output: JList[String] = new java.util.ArrayList[String]();
 
-  def update(result: java.util.List[java.lang.String]) = {
+  def update(result: JList[String]) = {
     output.addAll(result)
   }
 
-  def getList(): java.util.List[java.lang.String] =  {
+  def getList(): JList[String] =  {
     return output
   }
 }
@@ -30,13 +29,13 @@ class PrintEmiterImpl extends Observer {
 
 class ErrorEmitterImpl extends Observer {
 
-  val  errors: java.util.List[java.lang.String] = new java.util.ArrayList[java.lang.String]();
+  val  errors: JList[String] = new java.util.ArrayList[String]();
 
-  def update(result: java.util.List[java.lang.String]) = {
+  def update(result: JList[String]) = {
     errors.addAll(result);
   }
 
-  def getList(): java.util.List[java.lang.String] =  {
+  def getList(): JList[String] =  {
     return errors
   }
 }
@@ -57,10 +56,11 @@ class ExecutionMode(printObserver: Observer, errorObserver: Observer) extends Ru
 
   override def run(input: InterpreterResult): List[String] = {
     println(s"Finished process")
-    printObserver.update(input._1.asJava)
-    val outputMessage = if(input._1.nonEmpty) "Finished process with output: " else "Finished process, no output"
-    println(s"${outputMessage} \n${input._1.mkString("\n")}")
-    List(outputMessage) ++ input._1
+    val (result, variables) = input
+    printObserver.update(result.asJava)
+    val outputMessage = if(result.nonEmpty) "Finished process with output: " else "Finished process, no output"
+    println(s"${outputMessage} \n${result.mkString("\n")}")
+    List(outputMessage) ++ result
   }
   override def runError(message: List[String], stage: String): List[String] = {
     errorObserver.update(message.asJava)

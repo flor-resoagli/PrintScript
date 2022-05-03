@@ -1,5 +1,5 @@
 import scala.io.StdIn.readLine
-import org.florresoagli.printscript.{Cli, ConsoleReader, ErrorEmitterImpl, ExecutionMode, FileReader, InputReader, PrintEmiterImpl, RunningMode, ValidationMode}
+import org.florresoagli.printscript.{CompilerRunner, ConsoleReader, ErrorEmitterImpl, ExecutionMode, FileReader, InputReader, PrintEmiterImpl, RunningMode, ValidationMode}
 
 import java.util.Observer
 
@@ -99,7 +99,7 @@ def askForRunningMode: RunningMode = {
 }
 
 def tryToCompile(input: InputReader, version:String, runningMode: RunningMode): Unit = {
-  val result = try new Cli().run(input, version, runningMode) catch {
+  val result = try new CompilerRunner().run(input, version, runningMode) catch {
     case e: Exception => {
       println(s"${e.getMessage}, please run again")
     }

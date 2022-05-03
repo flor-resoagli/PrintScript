@@ -124,7 +124,7 @@ class ParserProvider11 extends ParserProvider {
       case SEMICOLON()  => SemicolonParser(firstInLine)
       case CONSTANT() =>
         DeclarationParser(
-          List(ConstantNumbParser(), ConstantStringParser()),
+          List(ConstantNumbParser(), ConstantStringParser(), BooleanTypeParser()),
           firstInExpression ++ List(READINPUT()),
           this,
           List(CONSTANT())
