@@ -18,7 +18,7 @@ class Parser10Testing {
 
     assertTrue(thrown.getMessage.contains(""))
   }
-//
+
   @Test
   def test02_variableAssignationShouldSuceed(): Unit = {
     val input = "variable = 3;"

@@ -7,6 +7,31 @@ import scala.collection.immutable.Queue
 class Parser(validInitialTokens: List[TokenType], parserProvider: ParserProvider) {
   type ParsingResult = (AST, Queue[Token])
 
+  private def startParsingLine(unparsedTokens: Queue[Token]): (AST, Queue[Token]) = {
+    var result: ParsingResult = (EmptyNode(), unparsedTokens)
+    // TODO: extract method here
+    result = parserProvider
+            .getParsers(validInitialTokens, IdentifierState.Reassignation)
+            .find(parser => parser.isValid(unparsedTokens))
+            .get
+            .parse(unparsedTokens, EmptyNode())
+
+
+    val queue = checkForTermianlLeftUnparsed(result)
+    if (result._1.isEmpty()) error(s"Expected literal, variable or 'let' but found ${unparsedTokens.head.tokenType}")
+    (result._1, queue)
+  }
+
+  private def checkForTermianlLeftUnparsed(result: (AST, Queue[Token])): Queue[Token] = {
+    if (result._2.isEmpty) error(("Line should end with semicolon"))
+    if (result._2.head.tokenType == SEMICOLON() || result._2.head.tokenType == RIGHTBRACE()) result._2.tail
+    else result._2
+  }
+
+
+
+
+
   def error(msg: String): Nothing = {
     throw new Exception(msg)
   }
@@ -33,28 +58,5 @@ class Parser(validInitialTokens: List[TokenType], parserProvider: ParserProvider
       result = (result._1 ++ List(ast), tokensLeft)
     }
     result._1
-  }
-
-  private def startParsingLine(unparsedTokens: Queue[Token]): (AST, Queue[Token]) = {
-    var result: ParsingResult = (EmptyNode(), unparsedTokens)
-    // TODO: extract method here
-    parserProvider
-      .getParsers(validInitialTokens, IdentifierState.Reassignation)
-      .foreach(parser => {
-        if (parser.isValid(unparsedTokens)) {
-          result = parser.parse(unparsedTokens, EmptyNode())
-        }
-      })
-    val queue = checkForTermianlLeftUnparsed(result)
-    if (result._1.isEmpty())
-      error(s"Expected literal, variable or 'let' but found ${unparsedTokens.head.tokenType}")
-    (result._1, queue)
-  }
-
-  private def checkForTermianlLeftUnparsed(result: (AST, Queue[Token])): Queue[Token] = {
-    if (result._2.isEmpty) error(("Line should end with semicolon"))
-//    if (result._2.head.tokenType == SEMICOLON() && result._2.tail.isEmpty) error("Line should end with semicolon")
-    if (result._2.head.tokenType == SEMICOLON() || result._2.head.tokenType == RIGHTBRACE()) result._2.tail
-    else result._2
   }
 }

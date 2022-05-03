@@ -88,16 +88,17 @@ class Parser11Testing {
 
   }
 
-//    @Test
-//    def test08_DeclarationAssignationShouldFailWithoutValue() = {
-//      val input = "let variable: number = ;"
-//      val tokens = lexer.tokenize(input)
-//
-//      val thrown = assertThrows(classOf[Exception], () => parser.parseTokens(tokens))
-//
-//      assertTrue(thrown.getMessage.contains(s""))
-//
-//    }
+    @Test
+    def test08_DeclarationAssignationShouldFailWithoutValue() = {
+      val input = "let variable: number = ;"
+      val tokens = lexer.tokenize(input)
+
+
+      val thrown = assertThrows(classOf[Exception], () => parser.parseTokens(tokens))
+
+      assertTrue(thrown.getMessage.contains(s"Expected expression"))
+
+    }
 
   @Test
   def test09_DeclarationAssignationShouldFailWithoutFinalSemicolon() = {
@@ -123,15 +124,15 @@ class Parser11Testing {
     assertTrue(thrown.getMessage.contains(""))
 
   }
-//    @Test
-//    def test11_DeclarationAssignationShouldFailWithoutEquals() = {
-//      val input = "let variable: number 1;"
-//      val tokens = lexer.tokenize(input)
-//
-//      val thrown = assertThrows(classOf[Exception], () => parser.parseTokens(tokens))
-//
-//      assertTrue(thrown.getMessage.contains(s" "))
-//    }
+    @Test
+    def test11_DeclarationAssignationShouldFailWithoutEquals() = {
+      val input = "let variable: number 1;"
+      val tokens = lexer.tokenize(input)
+
+      val thrown = assertThrows(classOf[Exception], () => parser.parseTokens(tokens))
+
+      assertTrue(thrown.getMessage.contains(s" "))
+    }
   @Test
   def test12_SimpleAdditionDeclarationShouldSucceed() = {
     val input = "let variable: number = 1+1;"
@@ -435,17 +436,15 @@ class Parser11Testing {
     assertEquals(expected, result)
   }
 
-//    @Test
-//    def test27_EndingLineWithDoubleParenthesisShouldFail() = {
-//      val input = "let variable: number = 2*(2+1));"
-//      val tokens = lexer.tokenize(input)
-//
-//      parser.parseTokens(tokens)
-//
-//      val thrown = assertThrows(classOf[Exception], () => parser.parseTokens(tokens))
-//
-//      assertTrue(thrown.getMessage.contains(""))
-//    }
+    @Test
+    def test27_EndingLineWithTripleParenthesisShouldFail() = {
+      val input = "let variable: number = 2*(2+1)));"
+      val tokens = lexer.tokenize(input)
+
+       val thrown = assertThrows(classOf[Exception], () => parser.parseTokens(tokens))
+
+      assertTrue(thrown.getMessage.contains(""))
+    }
 
   @Test
   def test50_MakingEmptyParenthesisAnExpressionShouldFail() = {
@@ -586,16 +585,17 @@ class Parser11Testing {
     assertTrue(thrown.getMessage.contains(""))
 
   }
-//    @Test
-//    def test54_printAloneWithOpenParenthesusShouldFail() = {
-//      val input = "print(;"
-//      val tokens = lexer.tokenize(input)
-//
-//      val thrown = assertThrows(classOf[Exception], () => parser.parseTokens(tokens))
-//
-//      assertTrue(thrown.getMessage.contains(""))
-//
-//    }
+    @Test
+    def test54_printAloneWithOpenParenthesusShouldFail() = {
+      val input = "println(;"
+      val tokens = lexer.tokenize(input)
+
+
+      val thrown = assertThrows(classOf[Exception], () => parser.parseTokens(tokens))
+
+      assertTrue(thrown.getMessage.contains(""))
+
+    }
 
   @Test
   def test38_printConstantShouldFailWithoutFinalSemicolon() = {
@@ -1102,5 +1102,18 @@ class Parser11Testing {
     assertEquals(expected, result)
 
   }
+
+  @Test
+  def test71_assignatingLineShouldSucceed() = {
+    val input = "let pi: number;"
+    val tokens = lexer.tokenize(input)
+
+    val result = parser.parseTokens(tokens)
+
+    val expected = List(DeclarationAssignationNode(Variable("pi"), VariableTypeNode(NumberVariableType()), EmptyNode()))
+    assertEquals(expected, result)
+
+  }
+
 
 }

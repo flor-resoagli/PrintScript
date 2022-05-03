@@ -3,12 +3,20 @@ import org.florresoagli.printscript.{Cli, ConsoleReader, ErrorEmitterImpl, Execu
 
 import java.util.Observer
 
+val printEmitter = new PrintEmiterImpl()
+val errorEmitter = new ErrorEmitterImpl()
+
+
 object CliRunner extends App {
+
 
   // stop program
   while (true) {
     UIRun()
     checkIfEnd()
+    println(printEmitter.getList())
+    println(errorEmitter.getList())
+
   }
 }
 
@@ -36,11 +44,11 @@ private def chooseMode(): RunningMode = {
   input match {
     case "1" => {
       println("Running in validation mode")
-      new ValidationMode(PrintEmiterImpl(), ErrorEmitterImpl())
+      new ValidationMode(printEmitter, errorEmitter)
     }
     case "2" => {
       println("Running in execution mode")
-      new ExecutionMode(PrintEmiterImpl(), ErrorEmitterImpl())
+      new ExecutionMode(printEmitter, errorEmitter)
     }
     case _ => {
       println("Unsupported mode")
