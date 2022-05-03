@@ -62,14 +62,17 @@ case class DeclarationParser(
 
   override def parse(unparsedTokens: Queue[Token], buildingAST: AST): ParsingResult = {
     val (let, tokens) = unparsedTokens.dequeue
-//    checkIfNextIsExpected("variable name", tokens)
     val (variable, newTokens) = tokens.dequeue
 
-    val (varibleTypeNode, tokensWithoutVaribleType) =
-      VariableTypeParser(varibleTypes).parse(newTokens, buildingAST)
+    val (varibleTypeNode, tokensWithoutVaribleType) =VariableTypeParser(varibleTypes).parse(newTokens, buildingAST)
 
-    val expressionResult: ParsingResult = ValueAssignationParser(validExpressions, parserProvider)
-      .parse(tokensWithoutVaribleType, EmptyNode())
+      if(tokensWithoutVaribleType.head.tokenType == SEMICOLON()) then  return   (
+        DeclarationAssignationNode(Variable(variable.value), varibleTypeNode, EmptyNode()),
+        tokensWithoutVaribleType
+      )
+
+    val expressionResult: ParsingResult = if(ValueAssignationParser(validExpressions, parserProvider).isValid(tokensWithoutVaribleType)) then ValueAssignationParser(validExpressions, parserProvider)
+      .parse(tokensWithoutVaribleType, EmptyNode()) else error("Expected expression")
 
     (
       DeclarationAssignationNode(Variable(variable.value), varibleTypeNode, expressionResult._1),
@@ -102,7 +105,7 @@ case class ValueAssignationParser(validNextTokens: List[TokenType], parserProvid
   }
 
   def isValid(unparsedTokens: Queue[Token]): Boolean = {
-    unparsedTokens.headOption.exists(token => token.tokenType == EQUAL())
+    (unparsedTokens.headOption.exists(token => token.tokenType == EQUAL()) && validNextTokens.contains(unparsedTokens.tail.head.tokenType))
   }
   def getNext(): List[TokenType] = {
     validNextTokens
@@ -130,52 +133,7 @@ case class VariableReassignationParser(
     expressions
   }
 }
-//TODO: Core of method does the same asLEft  parenthesis excepto for the tokens list, the parenthesis check instead of braces and the function that calls
-//case class org.florresoagli.printscript.IfParser(validParsers: List[TokenType], parserProvider: org.florresoagli.printscript.ParserProvider, conditionParser: org.florresoagli.printscript.ConditionParser) extends org.florresoagli.printscript.TokenTypeParser{
-//
-//  override def parse(unparsedTokens: Queue[Token], buildingAST: AST): ParsingResult = {
-//    val (ifToken, newTokens) = unparsedTokens.dequeue
-//
-//    val (condition, tokens) = conditionParser.parse(newTokens, EmptyNode())
-//    val tokensAfterLetfBrace = validateCurrentToken(tokens, LEFTBRACE(), "left brace")
-//
-//    var auxQueue= mutable.Queue[Token]()
-//    auxQueue ++= tokensAfterLetfBrace
-//    val accumulatorQueue =  mutable.Queue[Token]()
-//    var maybeInnerIfResult: ParsingResult = (EmptyNode(), unparsedTokens)
-//
-//      while (notRightBrace(auxQueue)) {
-//        if (isIfCondition(auxQueue)) {
-//          val result =  this.parse(toImmutable(auxQueue), EmptyNode())
-//          val newQueue = result._2.tail
-//          return (IfNode(condition, List(result._1), List()), newQueue)
-//        }
-//        accumulatorQueue.enqueue(auxQueue.dequeue())
-//      }
-//    val innerTokensParseResult: List[AST] = org.florresoagli.printscript.Parser(validParsers, parserProvider).parseTokens(accumulatorQueue.toList)
-//
-//
-//    auxQueue.dequeue()
-//    auxQueue.enqueue(Token(SEMICOLON(), AbsoluteRange(0, 0), LexicalRange(0, 0, 0, 0), ";"))
-//
-//    (IfNode(condition, innerTokensParseResult, Nil), toImmutable(auxQueue))
-//  }
-//
-//  def notRightBrace(unparsedTokens: mutable.Queue[Token]): Boolean = {
-////    if(unparsedTokens.isEmpty) error("missing right brace")
-//    unparsedTokens.nonEmpty && !unparsedTokens.front.tokenType.equals(RIGHTBRACE())
-//  }
-//  def isIfCondition(unparsedTokens: mutable.Queue[Token]): Boolean = {
-//    unparsedTokens.headOption.exists(token => token.tokenType == IF())
-//  }
-//
-//  def isValid(unparsedTokens: Queue[Token]): Boolean = {
-//    unparsedTokens.headOption.exists(token => token.tokenType == IF())
-//  }
-//  def getNext(): List[TokenType] = {
-//    validParsers
-//  }
-//}
+
 case class IfParser(
   declarationPArsers: List[TokenType],
   parserProvider: ParserProvider,
@@ -373,7 +331,7 @@ case class NumberTypeParser() extends TokenTypeParser {
   }
 
   def isValid(unparsedTokens: Queue[Token]): Boolean = {
-    unparsedTokens.headOption.exists(token => token.tokenType == NUMBERTYPE())
+      (unparsedTokens.headOption.exists(token => token.tokenType == NUMBERTYPE()))
   }
   def getNext(): List[TokenType] = {
     Nil
@@ -389,7 +347,7 @@ case class BooleanTypeParser() extends TokenTypeParser {
   }
 
   def isValid(unparsedTokens: Queue[Token]): Boolean = {
-    unparsedTokens.headOption.exists(token => token.tokenType == BOOLEANTYPE())
+      (unparsedTokens.headOption.exists(token => token.tokenType == BOOLEANTYPE()))
   }
   def getNext(): List[TokenType] = {
     Nil
@@ -590,7 +548,9 @@ case class LeftParenthesisParser(parsersToCall: List[TokenType], parserProvider:
     unparsedTokens.nonEmpty && !unparsedTokens.front.tokenType.equals(RIGHTPARENTHESIS())
   }
   def isValid(unparsedTokens: Queue[Token]): Boolean = {
-    unparsedTokens.headOption.exists(token => token.tokenType == LEFTPARENTHESIS())
+   ((unparsedTokens.headOption.exists(token => token.tokenType == LEFTPARENTHESIS())))
+//     && unparsedTokens.tail.headOption.exists(token => if(!parsersToCall.contains(token.tokenType)) error("Expected expression") else true))
+
   }
 
   def getNext(): List[TokenType] = {
@@ -614,7 +574,8 @@ case class RightParenthesisParser(
 
   }
   def isValid(unparsedTokens: Queue[Token]): Boolean = {
-    unparsedTokens.headOption.exists(token => token.tokenType == RIGHTPARENTHESIS())
+    if(!parsersToCall.contains(unparsedTokens.tail.head.tokenType))error("Expected expression")
+    (unparsedTokens.headOption.exists(token => token.tokenType == RIGHTPARENTHESIS()))
   }
 
   def getNext(): List[TokenType] = {
@@ -647,16 +608,13 @@ case class ExpressionParser(expectedTokens: List[TokenType], parserProvider: Par
     if (isSemiColon(unparsedTokens.front)) then return (buildingAST, unparsedTokens)
 
     val parsersToCall = parserProvider.getParsers(expectedTokens, IdentifierState.InUse)
-//    parsersToCall.foreach(p => p.getNext().contains(unparsedTokens.head.tokenType))
+
     var result: ParsingResult = (EmptyNode(), unparsedTokens)
-    breakable {
-      parsersToCall.foreach(parser => {
-        if (unparsedTokens.nonEmpty && parser.isValid(unparsedTokens)) {
-          result = parser.parse(unparsedTokens, buildingAST)
-          break
-        }
-      })
-    }
+    result = parsersToCall
+            .find(parser => parser.isValid(unparsedTokens) && unparsedTokens.nonEmpty)
+            .get
+            .parse(unparsedTokens, buildingAST)
+    
     if (result._1.isEmpty()) error("Expected expression")
 
     parse(result._2, result._1)
@@ -684,7 +642,7 @@ case class AdditionParser(validNextTokens: List[TokenType], parserProvider: Pars
   }
 
   def isValid(unparsedTokens: Queue[Token]): Boolean = {
-    unparsedTokens.headOption.exists(token => token.tokenType == SUM())
+      unparsedTokens.headOption.exists(token => token.tokenType == SUM())
     && unparsedTokens.tail.headOption.exists(token =>
       List(LITERALSTRING(), LITERALNUMBER(), IDENTIFIER()) contains token.tokenType
     )
@@ -730,8 +688,7 @@ case class HighPriorityOperationParser(
     unparsedTokens.isEmpty || unparsedTokens.front.tokenType == LEFTPARENTHESIS()
   }
   def isValid(unparsedTokens: Queue[Token]): Boolean = {
-    unparsedTokens.headOption.exists(List(DIV(), MUL()) contains _.tokenType)
-
+    (unparsedTokens.headOption.exists(List(DIV(), MUL()) contains _.tokenType))
   }
 
   def getNext(): List[TokenType] = {
@@ -751,7 +708,7 @@ case class SubstractionParser(validNextTokens: List[TokenType], parserProvider: 
   }
 
   def isValid(unparsedTokens: Queue[Token]): Boolean = {
-    unparsedTokens.headOption.exists(token => token.tokenType == SUB())
+      unparsedTokens.headOption.exists(token => token.tokenType == SUB())
     && unparsedTokens.tail.headOption.exists(token =>
       List(LITERALSTRING(), LITERALNUMBER(), IDENTIFIER()) contains token.tokenType
     )
