@@ -36,6 +36,7 @@ class Interpreter10(
       case c @ ConstantNumb(_)          => constantNumbNode(c)
       case c @ ConstantString(_)        => constantStringNode(c)
       case c @ BinaryOperation(_, _, _) => binaryOperationNode(c)
+      case c @ EmptyNode()              => null
       case _ => throw new Exception("Can't interpret expression " + expression.getClass.getName)
     }
   }

@@ -49,6 +49,7 @@ trait Interpreter(
   def assignVariable(variable: Variable, value: AST): Unit
 
   def variableTypeMatches(variableType: VariableType, variableValue: Any): VariableType = {
+    if(variableValue == null) return variableType
     variableType.isInstance(variableValue) match {
       case true => variableType
       case false => throw new Exception("Can't assign " + variableValue + " to variable  because it's not of type ")

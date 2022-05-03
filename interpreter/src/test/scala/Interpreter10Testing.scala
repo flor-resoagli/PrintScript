@@ -612,4 +612,16 @@ class Interpreter10Testing extends TestCase {
     assertEquals(expected, result._2)
     assertEquals(expectedOutput, result._1)
   }
+
+  @Test
+  def test44_declareAloneShouldSucceed() = {
+    val input = "let a: number; a = 2.5;"
+    val tokens = lexer.tokenize(input)
+    val trees = parser.parseTokens(tokens)
+    val result = interpreter.interpret(trees)
+
+    val expected = mutable.Map("a" -> (NumberVariableType(), 2.5))
+
+    assertEquals(expected, result._2)
+  }
 }
