@@ -1138,23 +1138,6 @@ class Parser11Testing {
     assertEquals(expected, result)
 
   }
-  @Test
-  def test76_addin() = {
-    val input = "\n" +
-      "const booleanValue: boolean = false;\n"
-//      "if(booleanValue) {\n" +
-//      "println(\"if statement is not working correctly\");\n    " +
-//      "}\n   " +
-//      " println(\"outside of conditional\");"
-    val tokens = lexer.tokenize(input)
-
-    val result = parser.parseTokens(tokens)
-
-    assertTrue(true)
-//    val expected = List(AssignationNode(Variable("variable"), BinaryOperation(Variable("variable1"),PlusBinaryOperator(), Variable("variable2"))))
-//    assertEquals(expected, result)
-
-  }
 
 
 
