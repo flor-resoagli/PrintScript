@@ -7,25 +7,45 @@ import scala.collection.immutable.Queue
 class Parser(validInitialTokens: List[TokenType], parserProvider: ParserProvider) {
   type ParsingResult = (AST, Queue[Token])
 
-  private def startParsingLine(unparsedTokens: Queue[Token]): (AST, Queue[Token]) = {
-    var result: ParsingResult = (EmptyNode(), unparsedTokens)
-    // TODO: extract method here
-    result = parserProvider
-            .getParsers(validInitialTokens, IdentifierState.Reassignation)
-            .find(parser => parser.isValid(unparsedTokens))
-            .get
-            .parse(unparsedTokens, EmptyNode())
 
 
-    val queue = checkForTermianlLeftUnparsed(result)
-    if (result._1.isEmpty()) error(s"Expected literal, variable or 'let' but found ${unparsedTokens.head.tokenType}")
-    (result._1, queue)
+  def parseTokens(tokens: List[Token]): List[AST] = {
+    if (tokens.isEmpty) return Nil
+    val tokensQueue = Queue[Token](tokens: _*)
+    var (firstAST, newTokens) = startParsingLine(tokensQueue)
+    var astList = List(firstAST)
+    var auxQueue = newTokens
+    while (tokensAreLeft(auxQueue)) {
+      val (ast, tokensLeft) = startParsingLine(auxQueue)
+      astList = astList :+ ast
+      auxQueue = tokensLeft
+    }
+//    if (tokensAreLeft(result._2)) error("Unexpected token: " + result._2.head)
+    astList
   }
 
-  private def checkForTermianlLeftUnparsed(result: (AST, Queue[Token])): Queue[Token] = {
-    if (result._2.isEmpty) error(("Line should end with semicolon"))
-    if (result._2.head.tokenType == SEMICOLON() || result._2.head.tokenType == RIGHTBRACE()) result._2.tail
-    else result._2
+  private def startParsingLine(unparsedTokens: Queue[Token]): (AST, Queue[Token]) = {
+    var result: ParsingResult = (EmptyNode(), unparsedTokens)
+    val (ast, newQueue) = getParserResult(unparsedTokens)
+
+    val queue = checkForTermianlLeftUnparsed(newQueue)
+    if (ast.isEmpty()) error(s"Expected literal, variable or 'let' but found ${unparsedTokens.head.tokenType}")
+    (ast, queue)
+  }
+
+
+   def getParserResult(unparsedTokens: Queue[Token]): ParsingResult = {
+    parserProvider
+      .getParsers(validInitialTokens, IdentifierState.Reassignation)
+      .find(parser => parser.isValid(unparsedTokens))
+      .getOrElse(error(s"Expected ${validInitialTokens.mkString(", ")} but found ${unparsedTokens.head.tokenType}"))
+      .parse(unparsedTokens, EmptyNode())
+  }
+
+  private def checkForTermianlLeftUnparsed(queue: Queue[Token]): Queue[Token] = {
+    if (queue.isEmpty) error(("Line should end with semicolon"))
+    if (queue.head.tokenType == SEMICOLON() || queue.head.tokenType == RIGHTBRACE()) queue.tail
+    else queue
   }
 
 
@@ -47,16 +67,5 @@ class Parser(validInitialTokens: List[TokenType], parserProvider: ParserProvider
     }
   }
 
-  def parseTokens(tokens: List[Token]): List[AST] = {
-    if (tokens.isEmpty) return Nil
-    val tokensQueue = Queue[Token](tokens: _*)
-    var (firstAST, newTokens) = startParsingLine(tokensQueue)
-    var result = (List(firstAST), newTokens)
-    // TODO: extract method for result ++ ...
-    while (tokensAreLeft(result._2)) {
-      val (ast, tokensLeft) = startParsingLine(result._2)
-      result = (result._1 ++ List(ast), tokensLeft)
-    }
-    result._1
-  }
+
 }

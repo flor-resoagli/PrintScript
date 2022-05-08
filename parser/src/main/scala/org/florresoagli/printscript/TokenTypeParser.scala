@@ -143,7 +143,7 @@ case class IfParser(
   override def parse(unparsedTokens: Queue[Token], buildingAST: AST): ParsingResult = {
     val (ifToken, newTokens) = unparsedTokens.dequeue
 
-    val (condition, tokens) = conditionParser.parse(newTokens, EmptyNode())
+    val (conditionToken, tokens) = conditionParser.parse(newTokens, EmptyNode())
     val tokensAfterLetfBrace = validateCurrentToken(tokens, LEFTBRACE(), "left brace")
 
     var auxQueue: _root_.scala.collection.mutable.Queue[Token] = getMutableQueue(
@@ -158,19 +158,17 @@ case class IfParser(
           val (innerIfNode, newQueue) = this.parse(toImmutable(auxQueue), EmptyNode())
           maybeInnerIfNode = innerIfNode
           if(newQueue.isEmpty) then break()
-          auxQueue = toMutable(newQueue)
-          auxQueue.remove(auxQueue.size-1)
-          if (isRightBrace(mutable.Queue(auxQueue.front))) break()
-//          if (isSemicolon(toImmutable(auxQueue))) auxQueue.dequeue
-//          auxQueue.enqueue(rightPArenthesis)
-//          break()
-
+          if(!isSemicolon(newQueue)) {
+            auxQueue = toMutable(newQueue)
+            auxQueue.remove(auxQueue.size-1)
+            if (isRightBrace(mutable.Queue(auxQueue.front))) break()
+          }
+          auxQueue = toMutable(newQueue.tail)
         }
         accumulatorQueue.enqueue(auxQueue.dequeue())
       }
     }
-    val innerTokensParseResult: List[AST] =
-      Parser(declarationPArsers, parserProvider).parseTokens(accumulatorQueue.toList)
+    val innerTokensParseResult: List[AST] = parseInnerTokens(toImmutable(accumulatorQueue), declarationPArsers, parserProvider)
 
     auxQueue.dequeue()
 
@@ -178,16 +176,28 @@ case class IfParser(
     val (elseNodes, tokensAfterElse): (List[AST], Queue[Token]) = if (elseParser.isValid(toImmutable(auxQueue))) then elseParser.parse(toImmutable(auxQueue), EmptyNode()) else (List(), toImmutable(auxQueue))
     auxQueue = toMutable((tokensAfterElse))
 
-    auxQueue.enqueue(Token(SEMICOLON(), AbsoluteRange(0, 0), LexicalRange(0, 0, 0, 0), ";"))
+    auxQueue = enqueueSemicolonAfterRightBrace(auxQueue)
+
 
     val node =
       if !(maybeInnerIfNode.isEmpty()) then
         (List(maybeInnerIfNode) ++ innerTokensParseResult)
       else innerTokensParseResult
 
-    (IfNode(condition, node, elseNodes), toImmutable(auxQueue))
+    (IfNode(conditionToken, node, elseNodes), toImmutable(auxQueue))
 
-//    parse(toImmutable(auxQueue), IfNode(condition, innerTokensParseResult, Nil))
+//    parse(toImmutable(auxQueue), IfNode(conditionToken, innerTokensParseResult, Nil))
+  }
+
+  private def enqueueSemicolonAfterRightBrace(auxQueue: mutable.Queue[Token]): mutable.Queue[Token] = {
+    if (!isRightBrace(auxQueue)) return enqueueAtFront(auxQueue)
+    auxQueue.enqueue(Token(SEMICOLON(), AbsoluteRange(0, 0), LexicalRange(0, 0, 0, 0), ";"))
+    auxQueue
+  }
+
+
+  private def enqueueAtFront(auxQueue: mutable.Queue[Token]): mutable.Queue[Token] = {
+    return toMutable(Queue(Token(SEMICOLON(), AbsoluteRange(0, 0), LexicalRange(0, 0, 0, 0), ";")) ++ auxQueue)
   }
 
   def isIfCondition(unparsedTokens: mutable.Queue[Token]): Boolean = {
@@ -211,6 +221,18 @@ def isRightBrace(unparsedTokens: mutable.Queue[Token]): Boolean = {
 //      if(unparsedTokens.isEmpty) error("missing right brace")
   unparsedTokens.nonEmpty && unparsedTokens.front.tokenType.equals(RIGHTBRACE())
 }
+private def parseInnerTokens(accumulatorQueue: Queue[Token],declarationPArsers: List[TokenType], parserProvider: ParserProvider): List[AST] = {
+  if (accumulatorQueue.isEmpty) return Nil
+  var astList = List[AST]()
+  var auxQueue = accumulatorQueue
+  while (auxQueue.nonEmpty) {
+    val (ast, newQueue) = Parser(declarationPArsers, parserProvider).getParserResult(auxQueue)
+    astList = astList ++ List(ast)
+    auxQueue = validateCurrentToken(newQueue, SEMICOLON(), "semicolon")
+  }
+  astList
+}
+
 case class ElseParser(declarationPArsers: List[TokenType], parserProvider: ParserProvider) {
 
   def parse(unparsedTokens: Queue[Token], buildingAST: AST): (List[AST], Queue[Token]) = {
@@ -226,8 +248,7 @@ case class ElseParser(declarationPArsers: List[TokenType], parserProvider: Parse
         accumulatorQueue.enqueue(auxQueue.dequeue())
       }
     }
-    val innerTokensParseResult: List[AST] =
-      Parser(declarationPArsers, parserProvider).parseTokens(accumulatorQueue.toList)
+    val innerTokensParseResult: List[AST] = parseInnerTokens(toImmutable(accumulatorQueue), declarationPArsers, parserProvider)
 
     val tokensAfterRightBrace =
       validateCurrentToken(toImmutable(auxQueue), RIGHTBRACE(), "right brace")

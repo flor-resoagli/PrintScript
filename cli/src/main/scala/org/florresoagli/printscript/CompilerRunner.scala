@@ -1,6 +1,6 @@
 package org.florresoagli.printscript
 
-class Cli() {
+class CompilerRunner() {
 
   def run(inputReader: InputReader, version: String, mode: RunningMode): Any =
     version match {

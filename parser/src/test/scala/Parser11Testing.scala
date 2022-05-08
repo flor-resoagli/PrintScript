@@ -1072,7 +1072,7 @@ class Parser11Testing {
   }
 
   @Test
-  def test71_readInputAVariableStartingLineShouldSucceed() = {
+  def test72_readInputAVariableStartingLineShouldSucceed() = {
     val input = "readInput(variable);"
     val tokens = lexer.tokenize(input)
 
@@ -1085,7 +1085,7 @@ class Parser11Testing {
   }
 
   @Test
-  def test71_assignatingAReadInputStringStartingLineShouldSucceed() = {
+  def test73_assignatingAReadInputStringStartingLineShouldSucceed() = {
     val input = "let read: string = readInput(\"variable\");"
     val tokens = lexer.tokenize(input)
 
@@ -1104,7 +1104,7 @@ class Parser11Testing {
   }
 
   @Test
-  def test71_assignatingLineShouldSucceed() = {
+  def test74_declaringWithoutAssigningShouldSucceed() = {
     val input = "let pi: number;"
     val tokens = lexer.tokenize(input)
 
@@ -1114,6 +1114,32 @@ class Parser11Testing {
     assertEquals(expected, result)
 
   }
+
+  @Test
+  def test75_addingStringAndIntShouldSucceed() = {
+    val input = "variable = \"a\" + 1;"
+    val tokens = lexer.tokenize(input)
+
+    val result = parser.parseTokens(tokens)
+
+    val expected = List(AssignationNode(Variable("variable"), BinaryOperation(ConstantString("a"),PlusBinaryOperator(), ConstantNumb(1.0))))
+    assertEquals(expected, result)
+
+  }
+
+  @Test
+  def test76_addingTwoIdentifiersShouldSucceed() = {
+    val input = "variable = variable1 + variable2;"
+    val tokens = lexer.tokenize(input)
+
+    val result = parser.parseTokens(tokens)
+
+    val expected = List(AssignationNode(Variable("variable"), BinaryOperation(Variable("variable1"),PlusBinaryOperator(), Variable("variable2"))))
+    assertEquals(expected, result)
+
+  }
+
+
 
 
 }
