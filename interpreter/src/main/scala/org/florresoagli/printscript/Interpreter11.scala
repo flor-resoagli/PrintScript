@@ -7,7 +7,7 @@ class Interpreter11(
   variableTypes: List[VariableType],
   symbolt: Map[String, (VariableType, Any)],
   binaryOperations: Map[(BinaryOperator) => Boolean, (Double, Double) => Double],
-  reader: Reader
+  reader: InputProviderReader
 ) extends Interpreter(variableTypes, symbolt, binaryOperations) {
 
   def initialInterpretation(tree: AST): Unit = {
@@ -60,6 +60,7 @@ class Interpreter11(
     }
 
     println(message)
+    output.append(message)
     val input = reader.readSingleLine()
     input
   }

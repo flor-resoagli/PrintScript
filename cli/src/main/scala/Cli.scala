@@ -1,14 +1,23 @@
 import scala.io.StdIn.readLine
-import org.florresoagli.printscript.{CompilerRunner, ConsoleReader, ErrorEmitterImpl, ExecutionMode, FileReader, InputReader, PrintEmiterImpl, RunningMode, ValidationMode}
+import org.florresoagli.printscript.{
+  CompilerRunner,
+  ConsoleIReader,
+  ConsoleReader,
+  ErrorEmitterImpl,
+  ExecutionMode,
+  FileReader,
+  InputReader,
+  PrintEmiterImpl,
+  RunningMode,
+  ValidationMode
+}
 
 import java.util.Observer
 
 val printEmitter = new PrintEmiterImpl()
 val errorEmitter = new ErrorEmitterImpl()
 
-
 object CliRunner extends App {
-
 
   // stop program
   while (true) {
@@ -98,10 +107,13 @@ def askForRunningMode: RunningMode = {
   runningMode
 }
 
-def tryToCompile(input: InputReader, version:String, runningMode: RunningMode): Unit = {
-  val result = try new CompilerRunner().run(input, version, runningMode) catch {
-    case e: Exception => {
-      println(s"${e.getMessage}, please run again")
+def tryToCompile(input: InputReader, version: String, runningMode: RunningMode): Unit = {
+  val inputProvider: ConsoleIReader = ConsoleIReader()
+  val result =
+    try new CompilerRunner().run(input, version, runningMode, inputProvider)
+    catch {
+      case e: Exception => {
+        println(s"${e.getMessage}, please run again")
+      }
     }
-  }
 }

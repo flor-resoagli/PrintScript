@@ -31,7 +31,7 @@ class InterpreterBuilder {
 
   }
 
-  def build11(): Interpreter = {
+  def build11(inputProvider: InputProviderReader): Interpreter = {
 
     val variableTypes: List[VariableType] =
       List[VariableType](
@@ -43,9 +43,7 @@ class InterpreterBuilder {
         new ConstantBooleanVariableType()
       )
 
-    val reader: ConsoleIReader = ConsoleIReader()
-
-    new Interpreter11(variableTypes, symbolTable, binaryOperators, reader)
+    new Interpreter11(variableTypes, symbolTable, binaryOperators, inputProvider)
 
   }
 

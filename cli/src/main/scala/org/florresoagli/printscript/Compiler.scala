@@ -16,7 +16,10 @@ class Compiler(parser: Parser, lexer: Lexer, interpreter: Interpreter) {
   type InterprterResult = (List[String], Map[String, (VariableType, Any)])
 
   def compile(input: String, runningMode: RunningMode): Unit = {
-    val tokens = lexer.tokenize(input)
+    val tokens = tryToLex(lexer, runningMode, input, "lexing") match {
+      case Some(value) => value
+      case None        => return
+    }
     val ast: List[AST] = tryToParse(runningMode, tokens, "parsing") match {
       case Some(result) => result
       case None         => return
@@ -28,6 +31,23 @@ class Compiler(parser: Parser, lexer: Lexer, interpreter: Interpreter) {
       }
 
     runningMode.run(interpretedInput)
+  }
+
+  def tryToLex(
+    lexer: Lexer,
+    runningMode: RunningMode,
+    input: String,
+    stage: String
+  ): Option[List[Token]] = {
+    val tokenList =
+      try lexer.tokenize(input)
+      catch {
+        case e: Exception => {
+          runningMode.runError(List(e.getMessage), stage)
+          return None
+        }
+      }
+    Some(tokenList)
   }
 
   private def tryToParse(
@@ -85,7 +105,29 @@ class Compiler10Builder extends CompilerBuilder {
 class Compiler11Builder extends CompilerBuilder {
 
   def build(): Compiler = {
-    new Compiler(Parser11().build(), Lexer11Builder().build(), InterpreterBuilder().build11())
+    new Compiler(
+      Parser11().build(),
+      Lexer11Builder().build(),
+      InterpreterBuilder().build11(ConsoleIReader())
+    )
   }
 
+  def build11(inputProvider: InputProviderReader): Compiler = {
+    new Compiler(
+      Parser11().build(),
+      Lexer11Builder().build(),
+      InterpreterBuilder().build11(inputProvider)
+    )
+  }
+}
+
+class TestingCompiler11Builder extends CompilerBuilder {
+
+  def build(): Compiler = {
+    new Compiler(
+      Parser11().build(),
+      Lexer11Builder().build(),
+      InterpreterBuilder().buildTesting11("input.txt")
+    )
+  }
 }

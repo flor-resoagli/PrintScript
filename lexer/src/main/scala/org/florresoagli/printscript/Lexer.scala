@@ -37,7 +37,7 @@ class Lexer(tokenConditions: List[TokenCondition]) {
 
     while (position < input.length) {
       var found = false
-      while ((input(position) == ' ' || input(position) == '\n') && position < input.length-1) {
+      while ((input(position) == ' ' || input(position) == '\n') && position < input.length - 1) {
         position += 1
       }
       for (tokenCondition <- tokenConditions) {
@@ -59,6 +59,7 @@ class Lexer(tokenConditions: List[TokenCondition]) {
           }
         }
       }
+      if (!found) { throw new Exception("Unrecognized symbol: " + input(position)) }
     }
     tokens.toList
   }

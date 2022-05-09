@@ -736,13 +736,13 @@ class Interpreter11Testing extends TestCase {
 
   @Test
   def test52_readInputShouldSucceedWhenInputingHelloWorld() = {
-    val input = "let a: string = readInput(\'lol\'); println(a);"
+    val input = "let a: string = readInput(\"lol\"); println(a);"
     val tokens = lexer.tokenize(input)
     val trees = parser.parseTokens(tokens)
     val result = interpreter11.interpret(trees)
 
     val expected = mutable.Map("a" -> (StringVariableType(), "Hello World"))
-    val expectedOutput = List[String]("Hello World")
+    val expectedOutput = List[String]("lol", "Hello World")
 
     assertEquals(expected, result._2)
     assertEquals(expectedOutput, result._1)
