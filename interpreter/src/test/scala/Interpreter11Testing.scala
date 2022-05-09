@@ -24,7 +24,7 @@ class Interpreter11Testing extends TestCase {
 
   def parser = new Parser11().build()
 
-  def interpreter11 = new InterpreterBuilder().build11()
+  def interpreter11 = new InterpreterBuilder().buildTesting11("input.txt")
 
   @Test
   def test01_NonExistingVariableAssignationShouldFail(): Unit = {
@@ -732,6 +732,21 @@ class Interpreter11Testing extends TestCase {
 
     assertEquals(expected, result._2)
     assertEquals(expectedOutput, result._1)
+  }
+
+  @Test
+  def test52_readInputShouldSucceedWhenInputingHelloWorld() = {
+    val input = "let a: string = readInput(\'lol\'); println(a);"
+    val tokens = lexer.tokenize(input)
+    val trees = parser.parseTokens(tokens)
+    val result = interpreter11.interpret(trees)
+
+    val expected = mutable.Map("a" -> (StringVariableType(), "Hello World"))
+    val expectedOutput = List[String]("Hello World")
+
+    assertEquals(expected, result._2)
+    assertEquals(expectedOutput, result._1)
+
   }
 
 }

@@ -6,7 +6,8 @@ import scala.collection.mutable.Map
 class Interpreter11(
   variableTypes: List[VariableType],
   symbolt: Map[String, (VariableType, Any)],
-  binaryOperations: Map[(BinaryOperator) => Boolean, (Double, Double) => Double]
+  binaryOperations: Map[(BinaryOperator) => Boolean, (Double, Double) => Double],
+  reader: Reader
 ) extends Interpreter(variableTypes, symbolt, binaryOperations) {
 
   def initialInterpretation(tree: AST): Unit = {
@@ -59,7 +60,7 @@ class Interpreter11(
     }
 
     println(message)
-    val input = new Scanner(System.in).nextLine()
+    val input = reader.readSingleLine()
     input
   }
 
