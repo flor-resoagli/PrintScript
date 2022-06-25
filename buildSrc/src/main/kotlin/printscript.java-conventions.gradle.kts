@@ -12,8 +12,8 @@ repositories {
 
     maven {
         credentials {
-                username = 'flor-resoagli'
-                password = ${{ secrets.TOKEN }}
+                username = 'flor-resoagli' as? String
+                password = ${{ secrets.TOKEN }} as? String
         }
         url = uri("https://maven.pkg.github.com/flor-resoagli/PrintScript")
     }
@@ -27,8 +27,8 @@ publishing {
             name = "GitHubPackages"
             url = uri("https://maven.pkg.github.com/flor-resoagli/PrintScript")
             credentials {
-                username = 'flor-resoagli'
-                password = ${{ secrets.TOKEN }}
+                username = 'flor-resoagli' as? String 
+                password = ${{ secrets.TOKEN }} as? String
             }
         }
     }
