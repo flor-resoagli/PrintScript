@@ -47,12 +47,13 @@ tasks {
     publish
 }
 
-tasks.publish {
-    group = "publishing"
-    description = "Publish the project to GitHub"
-    dependsOn(":gpr")
-}
+// tasks.publish {
+//     group = "publishing"
+//     description = "Publish the project to GitHub"
+//     dependsOn(":gpr")
+// }
 
+publishing {
     publications {
         create<MavenPublication>("default") {
             from(components["java"])
