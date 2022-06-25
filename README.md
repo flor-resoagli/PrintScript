@@ -1,15 +1,15 @@
-# PrintScript 
+# PrintScript
 
 
 ### Paso 1:
 
-1.0 Ir a Main en el modulo de cli 
+1.0 Ir a Main en el modulo de cli
 1.1 Correr CliRunner
 
 ### Paso 2:
 
-2.0 Elegir el tipo de input ingresando 
-* 1 -> File path, proveemos dos file path de prueba 
+2.0 Elegir el tipo de input ingresando
+* 1 -> File path, proveemos dos file path de prueba
   * "cli/src/main/resources/incorrectFile.txt"
   * "cli/src/main/resources/correctFile.txt"
 
@@ -19,7 +19,7 @@
 
 2.2 Elegir el modo en que corre
 * 1 -> Modo de validacion
-* 2 -> Modo de ejecucion 
+* 2 -> Modo de ejecucion
 
 ## Paso 3
 
