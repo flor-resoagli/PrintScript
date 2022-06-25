@@ -41,5 +41,5 @@ jobs:
       with:
         arguments: publish
       env:
-        USERNAME: 'flor-resoagli'
-        TOKEN: ${{ secrets.TOKEN }}
+        GITHUB_ACTOR: 'flor-resoagli'
+        GITHUB_TOKEN: ${{ secrets.TOKEN }}
