@@ -53,23 +53,23 @@ tasks.publish {
     dependsOn(":gpr")
 }
 
-publishing {
-    repositories {
-        maven {
-            name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/flor-resoagli/PrintScript")
-            credentials {
-                username = System.getenv("GITHUB_ACTOR") as? String
-                password = System.getenv("GITHUB_TOKEN") as? String
-            }
-        }
-    }
-    publications {
-        register<MavenPublication>("gpr") {
-            from(components["java"])
-        }
-    }
-}
+//publishing {
+//    repositories {
+//        maven {
+//            name = "GitHubPackages"
+//            url = uri("https://maven.pkg.github.com/flor-resoagli/PrintScript")
+//            credentials {
+//                username = System.getenv("GITHUB_ACTOR") as? String
+//                password = System.getenv("GITHUB_TOKEN") as? String
+//            }
+//        }
+//    }
+//    publications {
+//        register<MavenPublication>("gpr") {
+//            from(components["java"])
+//        }
+//    }
+//}
 
 tasks.test {
     useJUnitPlatform()
