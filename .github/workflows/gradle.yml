@@ -34,4 +34,4 @@ jobs:
           arguments: build
         env:
           GITHUB_ACTOR: 'flor-resoagli'
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
