@@ -40,3 +40,9 @@ tasks.jacocoTestReport {
 application {
     mainClass.set("cli.main.scala.Main")
 }
+
+repositories{
+    mavenCentral()
+    jcenter()
+}
+
