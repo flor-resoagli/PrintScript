@@ -29,6 +29,24 @@ repositories {
     }
 }
 
+publishing {
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/flor-resoagli/PrintScript")
+            credentials {
+                username = System.getenv("GITHUB_ACTOR")
+                password = System.getenv("GITHUB_TOKEN")
+            }
+        }
+    }
+    publications {
+        create<MavenPublication>("mavenJava") {
+            version = "1.1.7"
+            from(components["java"])
+        }
+    }
+}
 
 tasks.test {
     useJUnitPlatform()

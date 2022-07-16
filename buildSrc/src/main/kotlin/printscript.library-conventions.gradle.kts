@@ -1,13 +1,10 @@
 plugins {
     `java-library`
     id("printscript.java-conventions")
-
-    scala
-
-
+    `scala`
     application
 }
 
 // Projects have the 'com.example' group by convention
-group = "org.florresoagli"
-version = "0.1.7"
+//group = "org.florresoagli"
+//version = "0.1.7"
