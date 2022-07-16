@@ -5,19 +5,6 @@ plugins {
     `maven-publish`
 }
 
-repositories {
-    mavenCentral()
-
-    gradlePluginPortal()
-
-    maven {
-        credentials {
-                username = System.getenv("GITHUB_ACTOR") as? String
-                password = System.getenv("GITHUB_TOKEN") as? String
-        }
-        url = uri("https://maven.pkg.github.com/flor-resoagli/PrintScript")
-    }
-
 
 }
 publishing {
@@ -72,6 +59,27 @@ dependencies {
     implementation("org.scoverage:gradle-scoverage:7.0.0")
 
 }
+
+publishing {
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/flor-resoagli/PrintScript")
+            credentials {
+                username = System.getenv("GITHUB_ACTOR")
+                password = System.getenv("GITHUB_TOKEN")
+            }
+        }
+    }
+
+    publications {
+        create<MavenPublication>("mavenJava") {
+            version = "1.1.7"
+            from(components["java"])
+        }
+    }
+}
+
 
 tasks.test {
     useJUnitPlatform()
