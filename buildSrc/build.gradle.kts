@@ -17,7 +17,17 @@ tasks {
     publish
 }
 
+repositories {
+    gradlePluginPortal()
 
+    maven {
+        credentials {
+            username = System.getenv("GITHUB_ACTOR") as String
+            password = System.getenv("GITHUB_TOKEN") as String
+        }
+        url = uri("https://maven.pkg.github.com/flor-resoagli/PrintScript")
+    }
+}
 
 
 tasks.test {
@@ -39,7 +49,3 @@ tasks.jacocoTestReport {
 application {
     mainClass.set("cli.main.scala.Main")
 }
-//repositories{
-//    mavenCentral()
-//    jcenter()
-//}
