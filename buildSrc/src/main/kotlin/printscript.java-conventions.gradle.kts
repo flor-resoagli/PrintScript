@@ -1,3 +1,5 @@
+import org.gradle.internal.impldep.com.fasterxml.jackson.core.JsonPointer.compile
+
 plugins {
     java
     scala
@@ -5,14 +7,21 @@ plugins {
     `maven-publish`
 }
 
+repositories {
+    mavenCentral()
+
+    gradlePluginPortal()
+
+    maven {
+        credentials {
+            username = System.getenv("GITHUB_ACTOR") as String
+            password = System.getenv("GITHUB_TOKEN") as String
+        }
+        url = uri("https://maven.pkg.github.com/flor-resoagli/PrintScript")
+    }
 
 
-
-
-//tasks {
-//    publish
-//}
-
+}
 
 dependencies {
 
