@@ -1,9 +1,11 @@
 name: Gradle Package
 
 on:
-  release:
-    branches: [master]
-    types: [created]
+  push:
+    branches: [ "master" ]
+#   release:
+#     branches: [master]
+#     types: [created]
 
 jobs:
   build:
