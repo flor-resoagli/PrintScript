@@ -76,3 +76,6 @@ case class EmptyNode() extends AST
 case class IfNode(cond: AST, leftTrue: List[AST], rightFalse: List[AST]) extends AST
 
 case class ReadInputNode(message: AST) extends AST
+
+
+

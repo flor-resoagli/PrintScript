@@ -2,9 +2,6 @@
 
 
 
-
-
-
 ### Paso 1:
 
 1.0 Ir a Main en el modulo de cli
