@@ -1,4 +1,3 @@
-import org.gradle.internal.impldep.com.fasterxml.jackson.core.JsonPointer.compile
 
 plugins {
     java
@@ -6,6 +5,7 @@ plugins {
     application
     `maven-publish`
     jacoco
+
 }
 
 repositories {
@@ -40,13 +40,9 @@ dependencies {
     implementation("org.junit.jupiter:junit-jupiter-engine:5.7.1")
     implementation("org.junit.jupiter:junit-jupiter-api:5.7.1")
 
+
     // Need scala-xml at test runtime
     testRuntimeOnly("org.scala-lang.modules:scala-xml_2.13:1.2.0")
-
-    // linter
-    implementation("com.github.eugenesy.scapegoat:gradle-scapegoat-plugin:0.2.0")
-    // coverage
-    implementation("org.scoverage:gradle-scoverage:7.0.0")
 
 }
 
