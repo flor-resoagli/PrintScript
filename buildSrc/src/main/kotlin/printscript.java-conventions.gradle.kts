@@ -5,6 +5,7 @@ plugins {
     scala
     application
     `maven-publish`
+    jacoco
 }
 
 repositories {
@@ -14,8 +15,8 @@ repositories {
 
     maven {
         credentials {
-            username = System.getenv("GITHUB_ACTOR") as String
-            password = System.getenv("GITHUB_TOKEN") as String
+            username = System.getenv("GITHUB_ACTOR")
+            password = System.getenv("GITHUB_TOKEN")
         }
         url = uri("https://maven.pkg.github.com/flor-resoagli/PrintScript")
     }
