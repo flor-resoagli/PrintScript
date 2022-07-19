@@ -4,9 +4,14 @@ plugins {
     scala
     application
     `maven-publish`
+//    id("io.github.cosmicsilence.scalafix") version "0.1.13"
     jacoco
 
 }
+
+
+
+apply(plugin = "io.github.cosmicsilence.scalafix")
 
 repositories {
     mavenCentral()
@@ -19,6 +24,9 @@ repositories {
             password = System.getenv("GITHUB_TOKEN")
         }
         url = uri("https://maven.pkg.github.com/flor-resoagli/PrintScript")
+    }
+    maven {
+        url = uri("https://plugins.gradle.org/m2/")
     }
 
 
@@ -58,14 +66,13 @@ publishing {
         }
     }
 
-    publications {
+publications {
         create<MavenPublication>("mavenJava") {
             version = "1.2.0"
             from(components["java"])
         }
     }
 }
-
 
 tasks.test {
     useJUnitPlatform()

@@ -7,48 +7,17 @@ plugins {
     id("com.github.alisiikh.scalastyle") version "3.4.1"
 }
 
-buildscript {
-    repositories {
-        maven {
-            url = uri("https://plugins.gradle.org/m2/")
-        }
-    }
-}
-
-
-tasks.check {
-    scalastyle
-}
-
 dependencies {
 //    implementation("cz.alenkacz.gradle.scalafmt:1.16.2")
     implementation("com.github.alisiikh:gradle-scalastyle-plugin:3.4.1")
+    implementation("io.github.cosmicsilence:gradle-scalafix:0.1.13")
 }
 
-apply(plugin = "com.github.alisiikh.scalastyle")
 
-scalastyle {
-    failOnWarning.set(true)
-    verbose.set(false)
-    quiet.set(true)
-
-    // source sets must be defined in the project
-    sourceSets {
-
-        main {
-            output.dir("${projectDir}/scalastyle-main-report.xml") // output the main report to a specific location
-        }
-
-    }
-}
-
-scalafmt {
-    configFilePath = ".scalafmt.conf"
-}
 
 repositories {
     gradlePluginPortal()
-
+    mavenCentral()
     maven {
         credentials {
             username = System.getenv("GITHUB_ACTOR")
