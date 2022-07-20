@@ -3,18 +3,19 @@ plugins {
     jacoco
     `maven-publish`
     application
-    id("cz.alenkacz.gradle.scalafmt") version "1.16.2"
     id("com.github.alisiikh.scalastyle") version "3.4.1"
     id("io.github.cosmicsilence.scalafix") version "0.1.13"
-
+    id("org.scoverage") version "7.0.0"
+        id("cz.alenkacz.scalafmt") version "1.16.2"
 }
 
 dependencies {
-    implementation("org.scala-lang:scala3-library_3:3.0.0")
-//    implementation("cz.alenkacz.gradle.scalafmt:1.16.2")
+//    implementation("org.scala-lang:scala3-library_3:3.0.0")
+    implementation("cz.alenkacz.gradle.scalafmt:1.16.2")
     implementation("com.github.alisiikh:gradle-scalastyle-plugin:3.4.1")
     implementation("io.github.cosmicsilence:gradle-scalafix:0.1.13")
 //    implementation("ch.epfl.scala:scalafix-diff_2.11:0.4.2+66-0f3e3187")
+    implementation("org.scoverage:gradle-scoverage:7.0.0")
 }
 
 repositories {
@@ -72,6 +73,10 @@ tasks {
 }
 
 scalafix {
+
+}
+
+scalafmt {
 
 }
 

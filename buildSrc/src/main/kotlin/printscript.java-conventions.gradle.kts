@@ -7,9 +7,8 @@ plugins {
     id("io.github.cosmicsilence.scalafix")
 //    id("com.github.alisiikh.scalastyle")
     id("com.github.alisiikh.scalastyle")
-
-
-
+    id("org.scoverage")
+    id("cz.alenkacz.scalafmt")
 }
 
 repositories {
@@ -33,9 +32,6 @@ repositories {
 
 dependencies {
 
-    implementation("com.github.alisiikh:gradle-scalastyle-plugin:3.4.1")
-
-
     // Use Scala 3.0.0 in our library project
     implementation("org.scala-lang:scala3-library_3:3.0.0")
 
@@ -52,6 +48,10 @@ dependencies {
     // Need scala-xml at test runtime
     testRuntimeOnly("org.scala-lang.modules:scala-xml_2.13:1.2.0")
 
+
+    implementation("cz.alenkacz.gradle.scalafmt:1.16.2")
+    implementation("org.scoverage:gradle-scoverage:7.0.0")
+    implementation("com.github.alisiikh:gradle-scalastyle-plugin:3.4.1")
 }
 
 publishing {
@@ -92,8 +92,18 @@ scalastyle {
     sourceSets {
 
         main {
-            output.dir("${projectDir}/scalastyle-main-report.xml") // output the main report to a specific location
+            output.dir("./scalastyle-main-report.xml") // output the main report to a specific location
         }
 
     }
+}
+
+scoverage {
+    minimumRate.set(0.80.toBigDecimal())
+    scoverageScalaVersion.set("3.0.0")
+    excludedPackages.add("cli")
+}
+
+tasks.test {
+    finalizedBy(tasks.reportScoverage)
 }

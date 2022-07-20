@@ -1,7 +1,7 @@
 plugins {
     `java-library`
     id("printscript.java-conventions")
-    `scala`
+    scala
     application
 }
 
