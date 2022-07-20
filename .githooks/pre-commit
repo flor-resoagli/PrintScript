@@ -1,0 +1,8 @@
+#!/bin/sh
+echo "Running pre-commit linter hook"
+./gradlew 'scalastyleMainCheck'
+./gradlew 'scalastyleCheck'
+./gradlew 'scalastyleTestCheck'
+status=$?
+echo "Finished pre-commit linter hook"
+exit $status
