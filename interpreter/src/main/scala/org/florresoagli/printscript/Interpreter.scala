@@ -75,7 +75,7 @@ trait Interpreter(
     (left, right, node.operator) match {
       case (left: Double, right: Double, operator: _) => binaryOperation(left, right, operator)
       case (left: String , right: _, operator: PlusBinaryOperator) => concatString(left, right.toString)
-      case (left: _, right: String, operator: PlusBinaryOperator) => concatString(left.toString, right)
+      //case (left: _, right: String, operator: PlusBinaryOperator) => concatString(left.toString, right)
       case _ => throw new Exception("Can't perform binary operation " + node.operator + " with " + left + " and " + right)
     }
   }

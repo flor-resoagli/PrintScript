@@ -99,7 +99,7 @@ class ParserProvider11 extends ParserProvider {
       case LITERALSTRING() =>
         LiteralStringParser(List(SUM(), RIGHTPARENTHESIS()), this, SemicolonParser(firstInLine))
       case LITERALBOOLEAN() => ConstantBooleanParser()
-      case SUM()            => AdditionParser(firstInExpression, this)
+      case SUM() => AdditionParser(firstInExpression, this)
       case SUB() => SubstractionParser(List(LITERALNUMBER(), LEFTPARENTHESIS(), IDENTIFIER()), this)
       case MUL() =>
         HighPriorityOperationParser(List(LITERALNUMBER(), LEFTPARENTHESIS(), IDENTIFIER()), this)
@@ -119,9 +119,9 @@ class ParserProvider11 extends ParserProvider {
           this,
           List(DECLARATION())
         )
-      case PRINTLN()    => PrintParser(firstInExpression, this)
+      case PRINTLN() => PrintParser(firstInExpression, this)
       case IDENTIFIER() => getIdentifierParser(identifierState)
-      case SEMICOLON()  => SemicolonParser(firstInLine)
+      case SEMICOLON() => SemicolonParser(firstInLine)
       case CONSTANT() =>
         DeclarationParser(
           List(ConstantNumbParser(), ConstantStringParser(), BooleanTypeParser()),
@@ -140,7 +140,7 @@ class ParserProvider11 extends ParserProvider {
           this
         )
       //      case EQUAL() => org.florresoagli.printscript.ValueAssignationParser(firstInExpression)
-
+      case _ => LiteralStringParser(List(SUM(), RIGHTPARENTHESIS()), this, SemicolonParser(firstInLine))
     }
   }
   def getIdentifierParser(state: IdentifierState): TokenTypeParser = {

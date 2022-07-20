@@ -17,15 +17,13 @@ class PrintEmiterImpl extends Observer {
 
  val  output: JList[String] = new java.util.ArrayList[String]();
 
-  def update(result: JList[String]) = {
+  def update(result: JList[String]): Unit = {
     output.addAll(result)
   }
 
-  def getList(): JList[String] =  {
-    return output
-  }
-}
+  def getList(): JList[String] =  output
 
+}
 
 class ErrorEmitterImpl extends Observer {
 
@@ -35,9 +33,8 @@ class ErrorEmitterImpl extends Observer {
     errors.addAll(result);
   }
 
-  def getList(): JList[String] =  {
-    return errors
-  }
+  def getList(): JList[String] =  errors
+
 }
 
 
