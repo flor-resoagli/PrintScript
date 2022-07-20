@@ -5,12 +5,16 @@ plugins {
     application
     id("cz.alenkacz.gradle.scalafmt") version "1.16.2"
     id("com.github.alisiikh.scalastyle") version "3.4.1"
+    id("io.github.cosmicsilence.scalafix") version "0.1.13"
+
 }
 
 dependencies {
 //    implementation("cz.alenkacz.gradle.scalafmt:1.16.2")
     implementation("com.github.alisiikh:gradle-scalastyle-plugin:3.4.1")
     implementation("io.github.cosmicsilence:gradle-scalafix:0.1.13")
+//    implementation("ch.epfl.scala:scalafix-diff_2.11:0.4.2+66-0f3e3187")
+
 }
 
 

@@ -4,14 +4,9 @@ plugins {
     scala
     application
     `maven-publish`
-//    id("io.github.cosmicsilence.scalafix") version "0.1.13"
     jacoco
 
 }
-
-
-
-apply(plugin = "io.github.cosmicsilence.scalafix")
 
 repositories {
     mavenCentral()
@@ -48,6 +43,10 @@ dependencies {
     implementation("org.junit.jupiter:junit-jupiter-engine:5.7.1")
     implementation("org.junit.jupiter:junit-jupiter-api:5.7.1")
 
+    // https://mvnrepository.com/artifact/ch.epfl.scala/scalafix-diff
+    implementation("ch.epfl.scala:scalafix-diff_2.11:0.4.2+66-0f3e3187")
+
+
 
     // Need scala-xml at test runtime
     testRuntimeOnly("org.scala-lang.modules:scala-xml_2.13:1.2.0")
@@ -73,6 +72,7 @@ publications {
         }
     }
 }
+
 
 tasks.test {
     useJUnitPlatform()
