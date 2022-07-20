@@ -15,7 +15,7 @@ class Lexer(tokenConditions: List[TokenCondition]) {
   }
 
   private def lexicalStateDeclaration(input: String): List[LexicalState] = {
-    var line = 0
+    var line   = 0
     var column = -1
     input
       .map(c => {
@@ -33,7 +33,7 @@ class Lexer(tokenConditions: List[TokenCondition]) {
 
   private def buildTokens(input: String): List[Token] = {
     var position = 0
-    var tokens = ListBuffer[Token]()
+    var tokens   = ListBuffer[Token]()
 
     while (position < input.length) {
       var found = false

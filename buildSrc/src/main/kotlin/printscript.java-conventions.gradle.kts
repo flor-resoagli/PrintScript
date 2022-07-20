@@ -5,12 +5,13 @@ plugins {
     application
     `maven-publish`
     jacoco
-
+    id("cz.alenkacz.gradle.scalafmt")
+    id("com.github.alisiikh.scalastyle")
+    id("org.scoverage")
 }
 
 repositories {
     mavenCentral()
-
     gradlePluginPortal()
 
     maven {
@@ -40,9 +41,12 @@ dependencies {
     implementation("org.junit.jupiter:junit-jupiter-engine:5.7.1")
     implementation("org.junit.jupiter:junit-jupiter-api:5.7.1")
 
-
     // Need scala-xml at test runtime
     testRuntimeOnly("org.scala-lang.modules:scala-xml_2.13:1.2.0")
+
+    implementation("gradle.plugin.cz.alenkacz:gradle-scalafmt:1.16.2")
+    implementation("com.github.alisiikh:gradle-scalastyle-plugin:3.4.1")
+    implementation("org.scoverage:gradle-scoverage:7.0.0")
 
 }
 

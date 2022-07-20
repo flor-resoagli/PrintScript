@@ -5,6 +5,7 @@ plugins {
     application
     id("cz.alenkacz.gradle.scalafmt") version "1.16.2"
     id("com.github.alisiikh.scalastyle") version "3.4.1"
+    id("org.scoverage") version "7.0.0"
 }
 
 buildscript {
@@ -21,8 +22,9 @@ tasks.check {
 }
 
 dependencies {
-//    implementation("cz.alenkacz.gradle.scalafmt:1.16.2")
+    implementation("gradle.plugin.cz.alenkacz:gradle-scalafmt:1.16.2")
     implementation("com.github.alisiikh:gradle-scalastyle-plugin:3.4.1")
+    implementation("org.scoverage:gradle-scoverage:7.0.0")
 }
 
 apply(plugin = "com.github.alisiikh.scalastyle")
@@ -44,6 +46,12 @@ scalastyle {
 
 scalafmt {
     configFilePath = ".scalafmt.conf"
+}
+
+scoverage {
+    minimumRate.set(0.80.toBigDecimal())
+    scoverageScalaVersion.set("3.0.0")
+    excludedPackages.add("cli")
 }
 
 repositories {
@@ -98,4 +106,19 @@ tasks.jacocoTestReport {
 
 application {
     mainClass.set("cli.main.scala.Main")
+}
+
+scalastyle {
+    failOnWarning.set(true)
+    verbose.set(false)
+    quiet.set(true)
+
+    // source sets must be defined in the project
+    sourceSets {
+
+        main {
+            output.dir("${projectDir}/scalastyle-main-report.xml") // output the main report to a specific location
+        }
+
+    }
 }
