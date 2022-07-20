@@ -10,6 +10,8 @@ plugins {
 }
 
 dependencies {
+    implementation("org.scala-lang:scala3-library_3:3.0.0")
+
 //    implementation("cz.alenkacz.gradle.scalafmt:1.16.2")
     implementation("com.github.alisiikh:gradle-scalastyle-plugin:3.4.1")
     implementation("io.github.cosmicsilence:gradle-scalafix:0.1.13")
@@ -67,6 +69,14 @@ tasks.jacocoTestReport {
         html.required.set(true)
         html.outputLocation.set(layout.buildDirectory.dir("reports"))
     }
+}
+
+tasks {
+    scalafix
+}
+
+scalafix {
+
 }
 
 application {
