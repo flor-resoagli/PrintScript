@@ -11,15 +11,11 @@ plugins {
 
 dependencies {
     implementation("org.scala-lang:scala3-library_3:3.0.0")
-
 //    implementation("cz.alenkacz.gradle.scalafmt:1.16.2")
     implementation("com.github.alisiikh:gradle-scalastyle-plugin:3.4.1")
     implementation("io.github.cosmicsilence:gradle-scalafix:0.1.13")
 //    implementation("ch.epfl.scala:scalafix-diff_2.11:0.4.2+66-0f3e3187")
-
 }
-
-
 
 repositories {
     gradlePluginPortal()

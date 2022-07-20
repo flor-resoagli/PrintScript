@@ -5,6 +5,11 @@ plugins {
     `maven-publish`
     jacoco
     id("io.github.cosmicsilence.scalafix")
+//    id("com.github.alisiikh.scalastyle")
+    id("com.github.alisiikh.scalastyle")
+
+
+
 }
 
 repositories {
@@ -27,6 +32,9 @@ repositories {
 }
 
 dependencies {
+
+    implementation("com.github.alisiikh:gradle-scalastyle-plugin:3.4.1")
+
 
     // Use Scala 3.0.0 in our library project
     implementation("org.scala-lang:scala3-library_3:3.0.0")
@@ -73,4 +81,19 @@ tasks.test {
 
 scalafix {
 
+}
+
+scalastyle {
+    failOnWarning.set(true)
+    verbose.set(false)
+    quiet.set(true)
+
+    // source sets must be defined in the project
+    sourceSets {
+
+        main {
+            output.dir("${projectDir}/scalastyle-main-report.xml") // output the main report to a specific location
+        }
+
+    }
 }
